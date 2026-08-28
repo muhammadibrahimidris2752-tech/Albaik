@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — Albaik Chicken</title>
+<meta name="robots" content="noindex, nofollow">
+<!--
+  ADMIN DASHBOARD. A separate, self-contained page — nothing in the
+  customer-facing index.html or root css/ or js/ files was changed to
+  build the Menu Manager (Phase 6's first piece); the customer site
+  has zero new links into /admin/ (staff reach it by navigating here
+  directly, the same way js/auth.js's own header comment already
+  anticipated an "admin dashboard's staff sign-in" existing outside
+  the customer nav). That keeps the "no regressions in existing
+  customer functionality" requirement trivially true for the Menu
+  Manager: nothing customer-facing was touched to build it.
+
+  PHASE 6 (Order Management) note on what's different this pass: THIS
+  phase's own customer-facing half (My Orders' enhancements) DOES
+  touch index.html/js/css — see PROJECT_CONTINUATION_SUMMARY.md's
+  Phase 6 (Order Management) section for exactly what and why. Only
+  this file (admin/) and admin/js/, admin/css/ are the "separate,
+  self-contained, zero customer-facing risk" part of the claim above;
+  it was never true of the customer-facing Order Management work,
+  which was never asked to be self-contained the way the admin side
+  was.
+
+  Two things already present in this file before this phase touched
+  it, from work done outside this session between the Menu Manager's
+  delivery and this one — left exactly as found, not reverted (see
+  PROJECT_CONTINUATION_SUMMARY.md's Phase 6 section for the full
+  account):
+    - Google sign-in wired into the gate below (adminGoogleBtn →
+      js/auth.js's pre-existing loginWithGoogle(), already used by the
+      customer-facing auth modal) — the divider/button markup itself
+      was hand-authored with inline styles; this phase moved those
+      into admin/css/admin.css (.admin-gate__divider,
+      .admin-google-btn) as a small, behavior-preserving cleanup,
+      consistent with this project's established "static layout
+      belongs in a stylesheet, inline style is for JS-controlled
+      dynamic values only" convention (see css/order-modal.css's own
+      upsell block for that exact convention already in use elsewhere).
+    - js/auth.js also gained a linkPasswordToAccount() function,
+      unused anywhere in the project — noted, not removed (removing
+      working code that isn't actively causing a problem, on a system
+      this phase was told not to touch "unless absolutely necessary",
+      isn't this phase's call to make) and not wired up either (out of
+      scope for Order Management).
+
+  Stylesheets loaded, and why:
+    css/tokens.css, css/base.css   — design tokens + base reset/type,
+                                      same as every page.
+    css/order-modal.css            — .order-overlay/.order-modal/
+                                      .order-modal__header/.icon-btn
+                                      chrome, reused for every modal on
+                                      this page — the same reuse
+                                      convention the Phase 2 auth modal
+                                      already established. Also
+                                      .order-view/.active — reused a
+                                      third time (already shared by the
+                                      order modal's own views AND the
+                                      auth modal's views) for switching
+                                      between this page's Menu/Orders
+                                      sections.
+    css/auth-modal.css             — .auth-field/.auth-error/
+                                      .place-order-btn form styling,
+                                      reused for the sign-in gate and
+                                      the item form.
+    css/product-grid.css           — .badge, .menu-search,
+                                      .skeleton-line/shimmer, reused
+                                      for badge chips, search boxes,
+                                      and loading placeholders on both
+                                      the Menu and Orders sections.
+    css/payment-tracking.css       — PHASE 6 (Order Management)
+                                      addition: .timeline/.tl-stage/
+                                      .tl-icon/.tl-content, reused
+                                      as-is for the order detail
+                                      modal's status timeline — the
+                                      exact same visual timeline a
+                                      customer sees in their own
+                                      tracking view. No @media blocks
+                                      in this file (checked before
+                                      adding it), so it's as safe to
+                                      load here as the others.
+    css/animations.css             — shared keyframes the above rely on.
+    admin/css/admin.css            — everything new to this page.
+
+  Deliberately NOT loaded: css/responsive.css. That file's desktop
+  (min-width:1024px) rule for `.order-modal` is written for the
+  customer cart/menu two-pane split and isn't scoped to just that
+  modal — reusing the bare .order-modal class here would inherit that
+  same leak, which this project has already had to patch twice
+  elsewhere (see PROJECT_CONTINUATION_SUMMARY.md's "Round 1" and
+  "Post-Phase-4 fix" sections, both about exactly this). admin/css/
+  admin.css writes its own desktop rules for this page's modals,
+  scoped to their own ids from the start, so that patch is never
+  needed here. Also skipped: header-nav.css, hero.css, home.css,
+  menu.css, reviews.css, product-modal.css — none of it applies to
+  this page.
+
+  PHASE 4 (Admin Dashboard) additions, completing the rest of what
+  "Admin Dashboard" originally meant (Dashboard/Menu/Orders/Categories/
+  Labels/Customers/Analytics already existed — see admin/js/admin-app.js
+  for the full nav list before this phase):
+    - Two brand-new sections/nav tabs: Delivery Zones (adminSection-
+      delivery) and Settings (adminSection-settings) — both back onto
+      Firestore collections/rules (deliveryZones, restaurantSettings)
+      and js/firestore.js functions that already existed before this
+      phase touched anything, just never had an admin UI. See
+      admin/js/admin-delivery-zones.js and admin/js/admin-settings.js.
+    - A new zoneFormOverlay modal, styled identically to categoryForm/
+      labelFormOverlay (same admin-small-modal + reused .order-modal
+      chrome) — added to admin/css/admin.css's existing ID-scoped
+      desktop-overrides block alongside those two, for the same reason.
+    - The Dashboard grid gained a Low Stock stat card + panel, and the
+      item form gained an optional Stock Quantity field — see
+      admin/js/admin-data.js's getLowStockItems() header comment for
+      the (deliberately simple, opt-in-per-item) design.
+    - Settings' Save button writes real effect: js/order.js, js/ui.js,
+      and js/app.js now read the live delivery fee/bank details via
+      js/restaurant-settings.js (which already existed, subscribed to
+      Firestore, and had a config.js-fallback design — it just had no
+      caller anywhere in the project until this phase wired it in).
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/order-modal.css">
+<link rel="stylesheet" href="../css/auth-modal.css">
+<link rel="stylesheet" href="../css/product-grid.css">
+<link rel="stylesheet" href="../css/payment-tracking.css">
+<link rel="stylesheet" href="../css/animations.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<!-- ============ SIGN-IN GATE ============ -->
+<!-- Exactly one of the three panels below is visible at a time,
+     toggled by admin/js/admin-auth.js's showGatePanel(). -->
+<div class="admin-gate" id="adminGate">
+  <div class="admin-gate__panel">
+    <p class="admin-gate__logo">Albaik Chicken</p>
+    <h1 class="display">Staff Sign In</h1>
+
+    <div id="adminGateChecking" class="admin-gate__spinner">Checking sign-in status…</div>
+
+    <div id="adminGateNotConfigured" hidden>
+      <p class="admin-gate__note">Firebase isn't configured yet, so staff sign-in isn't available here. See README.md's Firebase setup section, then reload this page.</p>
+    </div>
+
+    <div id="adminSignInPanel" hidden>
+      <div class="auth-error" id="adminGateError" hidden></div>
+      <form id="adminSignInForm" novalidate>
+        <div class="auth-field">
+          <label for="adminSignInEmail">EMAIL ADDRESS</label>
+          <input type="email" id="adminSignInEmail" autocomplete="username" required>
+        </div>
+        <div class="auth-field">
+          <label for="adminSignInPassword">PASSWORD</label>
+          <input type="password" id="adminSignInPassword" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="place-order-btn" id="adminSignInSubmitBtn">Sign In</button>
+      </form>
+
+      <!-- Matching Divider -->
+      <div class="admin-gate__divider"><span>or</span></div>
+
+      <!-- Matching Google Button -->
+      <button type="button" id="adminGoogleBtn" class="admin-google-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18">
+          <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.259h2.908c1.702-1.567 2.684-3.874 2.684-6.617z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+          <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
+          <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <p class="admin-gate__note admin-gate__note--spaced">Staff and admin accounts only. Contact your administrator if you need access.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DASHBOARD ============ -->
+<div id="adminDashboard" hidden>
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__brand">
+      <span class="display">Albaik</span>
+      <span class="mono">CHICKEN · GWARZO ROAD</span>
+    </div>
+    <nav class="admin-sidebar__nav" aria-label="Admin sections">
+      <button type="button" class="admin-sidebar__tab active" id="adminNavDashboard" data-section="dashboard"><span class="admin-sidebar__icon">📊</span>Dashboard</button>
+      <button type="button" class="admin-sidebar__tab" id="adminNavOrders" data-section="orders"><span class="admin-sidebar__icon">🧾</span>Orders</button>
+      <button type="button" class="admin-sidebar__tab" id="adminNavMenu" data-section="menu"><span class="admin-sidebar__icon">🍗</span>Menu</button>
+      <button type="button" class="admin-sidebar__tab" id="adminNavCategories" data-section="categories"><span class="admin-sidebar__icon">🗂️</span>Categories</button>
+      <button type="button" class="admin-sidebar__tab" id="adminNavLabels" data-section="labels"><span class="admin-sidebar__icon">🏷️</span>Labels</button>
+      <button type="button" class="admin-sidebar__tab" id="adminNavDelivery" data-section="delivery"><span class="admin-sidebar__icon">🛵</span>Delivery Zones</button>
+      <button type="button" class="admin-sidebar__tab" id="adminNavCustomers" data-section="customers"><span class="admin-sidebar__icon">👥</span>Customers</button>
+      <button type="button" class="admin-sidebar__tab" id="adminNavReviews" data-section="reviews"><span class="admin-sidebar__icon">⭐</span>Reviews</button>
+      <button type="button" class="admin-sidebar__tab" id="adminNavAnalytics" data-section="analytics"><span class="admin-sidebar__icon">📈</span>Analytics</button>
+      <button type="button" class="admin-sidebar__tab" id="adminNavStaff" data-section="staff"><span class="admin-sidebar__icon">🛡️</span>Staff</button>
+      <button type="button" class="admin-sidebar__tab" id="adminNavSettings" data-section="settings"><span class="admin-sidebar__icon">⚙️</span>Settings</button>
+    </nav>
+    <div class="admin-sidebar__footer">
+      <button type="button" id="adminSignOutBtn">Sign Out</button>
+    </div>
+  </aside>
+
+  <div class="admin-shell">
+    <header class="admin-header">
+      <div class="admin-header__title">
+        <span class="mono">ALBAIK CHICKEN · LIVE CONSOLE</span>
+        <h1 class="display" id="adminPageTitle">Dashboard</h1>
+      </div>
+      <div class="admin-header__actions">
+        <div class="admin-header__search" id="adminHeaderSearch"></div>
+        <button type="button" class="admin-header__notif" id="adminNotificationsBtn" aria-label="Notifications">🔔</button>
+        <div class="admin-header__profile">
+          <span class="admin-header__avatar" id="adminHeaderAvatar">A</span>
+          <span class="admin-header__name" id="adminHeaderUserName"></span>
+        </div>
+      </div>
+</header>
+
+    <!-- Notifications popover (wired in admin-app.js) -->
+    <div class="admin-notif-popover" id="adminNotifPopover" hidden>
+      <div class="admin-notif-popover__head">Notifications</div>
+      <div class="admin-notif-popover__list" id="adminNotifList"></div>
+    </div>
+
+  <main class="admin-main">
+    <div class="wrap">
+
+      <div class="order-view active" id="adminSection-dashboard">
+        <div class="admin-page-heading">
+          <p class="mono">ALBAIK CHICKEN · LIVE OVERVIEW</p>
+          <h1 class="display">Dashboard</h1>
+          <p>Current menu, orders, revenue, and fulfilment activity.</p>
+        </div>
+        <div id="adminDashboardDataNote" hidden></div>
+        <div class="admin-dashboard-grid" aria-label="Live business statistics">
+          <article class="admin-stat-card"><strong id="adminStatTotalItems">—</strong><span>Total Menu Items</span></article>
+          <article class="admin-stat-card"><strong id="adminStatAvailableItems">—</strong><span>Available Now</span></article>
+          <article class="admin-stat-card"><strong id="adminStatTotalOrders">—</strong><span>Total Orders</span></article>
+          <article class="admin-stat-card"><strong id="adminStatPendingOrders">—</strong><span>Open Orders</span></article>
+          <article class="admin-stat-card"><strong id="adminStatCompletedOrders">—</strong><span>Completed Orders</span></article>
+          <article class="admin-stat-card"><strong id="adminStatRevenue">—</strong><span>Revenue</span></article>
+          <article class="admin-stat-card"><strong id="adminStatLowStock">—</strong><span>Low Stock</span></article>
+        </div>
+        <section class="admin-dashboard-panel" aria-labelledby="adminLowStockTitle">
+          <div class="admin-dashboard-panel__head">
+            <div><p class="mono">INVENTORY ALERTS</p><h2 class="display" id="adminLowStockTitle">Low Stock</h2></div>
+            <button type="button" class="admin-btn-secondary" id="adminDashboardViewMenu">View menu</button>
+          </div>
+          <div id="adminDashboardLowStock"></div>
+        </section>
+        <section class="admin-dashboard-panel" aria-labelledby="adminRecentOrdersTitle">
+          <div class="admin-dashboard-panel__head">
+            <div><p class="mono">LATEST ACTIVITY</p><h2 class="display" id="adminRecentOrdersTitle">Recent Orders</h2></div>
+            <button type="button" class="admin-btn-secondary" id="adminDashboardViewOrders">View all orders</button>
+          </div>
+          <div id="adminDashboardRecentOrders"></div>
+        </section>
+      </div>
+
+      <div class="order-view" id="adminSection-menu">
+        <div class="admin-toolbar">
+          <div class="menu-search">
+            <span class="menu-search__icon">⌕</span>
+            <input type="text" id="adminSearchInput" placeholder="Search menu items…" autocomplete="off">
+          </div>
+          <div class="admin-toolbar__filters">
+            <select class="admin-select" id="adminCategoryFilter" aria-label="Filter by category">
+              <option value="">All categories</option>
+            </select>
+            <select class="admin-select" id="adminAvailabilityFilter" aria-label="Filter by availability"></select>
+            <select class="admin-select" id="adminSortSelect" aria-label="Sort menu items"></select>
+            <button type="button" class="admin-btn-secondary" id="adminRefreshBtn">Refresh</button>
+            <button type="button" class="admin-btn-primary" id="addItemBtn">+ Add Item</button>
+          </div>
+        </div>
+
+        <p class="admin-results-summary" id="adminResultsSummary"></p>
+        <div id="adminLoadNotice" hidden></div>
+        <div class="admin-item-list" id="adminItemList"></div>
+      </div>
+
+      <div class="order-view" id="adminSection-delivery">
+        <div class="admin-page-heading">
+          <p class="mono">DELIVERY &amp; FULFILMENT</p>
+          <h1 class="display">Delivery Zones</h1>
+          <p>Areas you deliver to and their fees, kept here for staff reference.</p>
+        </div>
+        <div class="admin-section-toolbar"><button type="button" class="admin-btn-primary" id="addZoneBtn">+ Add Zone</button></div>
+        <div id="adminZonesLoadNotice" hidden></div>
+        <div class="admin-taxonomy-list" id="adminZonesList"></div>
+      </div>
+
+      <div class="order-view" id="adminSection-orders">
+        <div class="admin-toolbar">
+          <div class="menu-search">
+            <span class="menu-search__icon">⌕</span>
+            <input type="text" id="adminOrdersSearchInput" placeholder="Search by order #, customer, or phone…" autocomplete="off">
+          </div>
+          <div class="admin-toolbar__filters">
+            <select class="admin-select" id="adminOrdersStatusFilter" aria-label="Filter by status"></select>
+            <select class="admin-select" id="adminOrdersSortSelect" aria-label="Sort orders"></select>
+            <button type="button" class="admin-btn-secondary" id="adminOrdersRefreshBtn">Refresh</button>
+          </div>
+        </div>
+
+        <p class="admin-results-summary" id="adminOrdersResultsSummary"></p>
+        <div id="adminOrdersLoadNotice" hidden></div>
+        <div class="admin-item-list" id="adminOrdersList"></div>
+      </div>
+
+<div class="order-view" id="adminSection-reviews">
+        <div class="admin-page-heading">
+          <p class="mono">CUSTOMER FEEDBACK</p>
+          <h1 class="display">Reviews</h1>
+          <p>Moderate every customer review — reply, hide, restore, or delete. Hidden reviews are never shown to customers.</p>
+        </div>
+        <div class="admin-toolbar">
+          <div class="menu-search">
+            <span class="menu-search__icon">⌕</span>
+            <input type="text" id="adminReviewsSearchInput" placeholder="Search by customer, text, or item…" autocomplete="off">
+          </div>
+          <div class="admin-toolbar__filters">
+            <select class="admin-select" id="adminReviewsItemFilter" aria-label="Filter by menu item">
+              <option value="">All menu items</option>
+            </select>
+            <select class="admin-select" id="adminReviewsVisibilityFilter" aria-label="Filter by visibility"></select>
+            <select class="admin-select" id="adminReviewsSortSelect" aria-label="Sort reviews"></select>
+          </div>
+        </div>
+<p class="admin-results-summary" id="adminReviewsResultsSummary"></p>
+        <div class="admin-item-list" id="adminReviewsList"></div>
+      </div>
+
+      <div class="order-view" id="adminSection-staff">
+        <div class="admin-page-heading">
+          <p class="mono">TEAM &amp; ACCESS</p>
+          <h1 class="display">Staff</h1>
+          <p>Manage staff accounts, temporary passwords, and per-member dashboard permissions. Staff only see the sections you grant them.</p>
+        </div>
+        <div class="admin-section-toolbar"><button type="button" class="admin-btn-primary" id="addStaffBtn">+ Add Staff</button></div>
+        <p class="admin-results-summary" id="adminStaffResultsSummary"></p>
+        <div class="admin-staff-list" id="adminStaffList"></div>
+      </div>
+
+      <div class="order-view" id="adminSection-categories">
+        <div class="admin-page-heading">
+          <p class="mono">MENU ORGANIZATION</p>
+          <h1 class="display">Categories</h1>
+          <p>Manage category names and visibility without changing existing menu data unexpectedly.</p>
+        </div>
+        <div class="admin-section-toolbar"><button type="button" class="admin-btn-primary" id="addCategoryBtn">+ Add Category</button></div>
+        <div class="admin-taxonomy-list" id="adminCategoriesList"></div>
+      </div>
+
+      <div class="order-view" id="adminSection-labels">
+        <div class="admin-page-heading">
+          <p class="mono">MENU ORGANIZATION</p>
+          <h1 class="display">Labels</h1>
+          <p>Create optional labels that can be attached to any menu item.</p>
+        </div>
+        <div class="admin-section-toolbar"><button type="button" class="admin-btn-primary" id="addLabelBtn">+ Add Label</button></div>
+        <div class="admin-taxonomy-list" id="adminLabelsList"></div>
+      </div>
+
+      <div class="order-view" id="adminSection-customers">
+        <div class="admin-page-heading">
+          <p class="mono">ORDER HISTORY</p>
+          <h1 class="display">Customers</h1>
+          <p>Customers are calculated from real orders, with lifetime value excluding cancelled orders.</p>
+        </div>
+        <div class="admin-customer-list" id="adminCustomersList"></div>
+      </div>
+
+      <div class="order-view" id="adminSection-analytics">
+        <div class="admin-page-heading">
+          <p class="mono">LIVE ORDER INSIGHTS</p>
+          <h1 class="display">Analytics</h1>
+          <p>Trends are calculated from the same live orders used by the Orders dashboard.</p>
+        </div>
+        <div class="admin-insights-grid">
+          <section class="admin-dashboard-panel"><div class="admin-insight-heading"><h2 class="display">Revenue · Last 7 Days</h2></div><div id="adminRevenueTrend"></div></section>
+          <section class="admin-dashboard-panel"><div class="admin-insight-heading"><h2 class="display">Orders by Status</h2></div><div id="adminStatusBreakdown"></div></section>
+          <section class="admin-dashboard-panel admin-insights-grid__full"><div class="admin-insight-heading"><h2 class="display">Top Menu Items</h2></div><div id="adminTopItems"></div></section>
+        </div>
+      </div>
+
+<div class="order-view" id="adminSection-staff">
+        <div class="admin-page-heading">
+          <p class="mono">TEAM &amp; ACCESS CONTROL</p>
+          <h1 class="display">Staff</h1>
+          <p>Create staff accounts and assign individual permissions. Only the Super Admin can manage staff.</p>
+        </div>
+        <div class="admin-section-toolbar"><button type="button" class="admin-btn-primary" id="addStaffBtn">+ Add Staff</button></div>
+        <div id="adminStaffLoadNotice" hidden></div>
+        <div class="admin-taxonomy-list" id="adminStaffList"></div>
+      </div>
+
+      <div class="order-view" id="adminSection-settings">
+        <div class="admin-page-heading">
+          <p class="mono">RESTAURANT SETTINGS</p>
+          <h1 class="display">Settings</h1>
+          <p>Saved changes take effect on the live site right away.</p>
+        </div>
+        <div id="adminSettingsNotice" hidden></div>
+        <form class="admin-settings-form" id="adminSettingsForm" novalidate>
+          <div class="admin-dashboard-panel">
+            <div class="admin-dashboard-panel__head"><div><p class="mono">CHECKOUT</p><h2 class="display">Delivery Fee</h2></div></div>
+            <div class="auth-field">
+              <label for="settingsDeliveryFee">Delivery fee (₦)</label>
+              <input type="number" id="settingsDeliveryFee" min="0" step="1" inputmode="decimal">
+            </div>
+            <p class="admin-field-hint">Added automatically to delivery orders at checkout. Pickup orders never see this.</p>
+          </div>
+          <div class="admin-dashboard-panel">
+            <div class="admin-dashboard-panel__head"><div><p class="mono">PAYMENT</p><h2 class="display">Bank Transfer Details</h2></div></div>
+            <div class="auth-field">
+              <label for="settingsBankName">Bank name</label>
+              <input type="text" id="settingsBankName" autocomplete="off">
+            </div>
+            <div class="auth-row">
+              <div class="auth-field">
+                <label for="settingsBankAccountNumber">Account number</label>
+                <input type="text" id="settingsBankAccountNumber" autocomplete="off" inputmode="numeric">
+              </div>
+              <div class="auth-field">
+                <label for="settingsBankAccountName">Account name</label>
+                <input type="text" id="settingsBankAccountName" autocomplete="off">
+              </div>
+            </div>
+            <p class="admin-field-hint">Shown to customers who choose Bank Transfer at checkout.</p>
+          </div>
+          <div class="auth-error" id="settingsFormError" hidden></div>
+          <button type="submit" class="admin-btn-primary" id="settingsSubmitBtn">Save Settings</button>
+        </form>
+      </div>
+
+</div>
+  </main>
+  </div><!-- /admin-shell -->
+</div>
+
+<!-- ============ NOTIFICATIONS POPOVER ============ -->
+<div class="admin-notif-popover" id="adminNotificationsPanel" hidden>
+  <div class="admin-notif-popover__head"><strong>Notifications</strong></div>
+  <div id="adminNotificationsList" class="admin-notif-popover__list"></div>
+</div>
+
+<!-- ============ ADD / EDIT ITEM MODAL ============ -->
+<div class="order-overlay" id="itemFormOverlay">
+  <div class="order-modal admin-form-modal" role="dialog" aria-modal="true" aria-labelledby="itemFormTitle">
+    <div class="order-modal__header">
+      <div class="order-modal__title">
+        <span class="display" id="itemFormTitle">Add Menu Item</span>
+        <span class="mono">ALBAIK CHICKEN · MENU MANAGER</span>
+      </div>
+      <div class="order-modal__actions">
+        <button type="button" class="icon-btn" id="itemFormCloseBtn" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="order-modal__body">
+      <div class="auth-error" id="itemFormError" hidden></div>
+
+      <form id="itemForm" novalidate>
+        <div class="admin-form-image">
+          <div class="admin-form-image__preview" id="itemFormImagePreview">
+            <img id="itemFormImagePreviewImg" alt="" hidden>
+            <span id="itemFormImageFallback">🍽️</span>
+          </div>
+          <div class="admin-form-image__controls">
+            <div class="auth-field admin-form-image__url-field">
+              <label for="itemFormImageUrl">Image URL</label>
+              <input type="text" id="itemFormImageUrl" placeholder="https://…">
+            </div>
+            <button type="button" class="admin-btn-secondary" id="itemFormUploadBtn">Upload Photo</button>
+            <input type="file" id="itemFormImageFile" accept="image/*" hidden>
+            <div class="admin-field-hint" id="itemFormUploadStatus"></div>
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label for="itemFormName">Name</label>
+          <input type="text" id="itemFormName" autocomplete="off">
+        </div>
+
+        <div class="auth-field">
+          <label for="itemFormDescription">Description</label>
+          <textarea id="itemFormDescription" rows="3"></textarea>
+        </div>
+
+        <div class="auth-row">
+          <div class="auth-field">
+            <label for="itemFormPrice">Price (₦)</label>
+            <input type="number" id="itemFormPrice" min="0" step="1" inputmode="decimal">
+          </div>
+          <div class="auth-field">
+            <label for="itemFormIcon">Fallback Icon</label>
+            <input type="text" id="itemFormIcon" maxlength="8" placeholder="🍗">
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label for="itemFormCategory">Category</label>
+          <select id="itemFormCategory"></select>
+          <input type="text" id="itemFormNewCategory" placeholder="New category name" hidden>
+        </div>
+
+        <div class="auth-field">
+          <label for="itemFormDisplayOrder">Display Order (within category)</label>
+          <input type="number" id="itemFormDisplayOrder" step="1" inputmode="numeric">
+        </div>
+
+        <div class="auth-field">
+          <label for="itemFormStock">Stock Quantity (optional)</label>
+          <input type="number" id="itemFormStock" min="0" step="1" inputmode="numeric" placeholder="Leave blank to not track stock">
+          <p class="admin-field-hint">Tracked items appear on the Dashboard's Low Stock panel once they run low.</p>
+        </div>
+
+        <div class="auth-field">
+          <label>Labels</label>
+          <div class="admin-label-checklist" id="itemFormLabelList"></div>
+        </div>
+
+        <div class="auth-field">
+          <label>Availability</label>
+          <div class="order-type" id="itemFormAvailabilityToggle">
+            <button type="button" data-available="true">Available</button>
+            <button type="button" data-available="false">Sold Out</button>
+          </div>
+        </div>
+
+        <div class="admin-form-readonly" id="itemFormRatingInfo" hidden></div>
+
+        <button type="submit" class="place-order-btn" id="itemFormSubmitBtn">Add Item</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CATEGORY FORM ============ -->
+<div class="order-overlay" id="categoryFormOverlay">
+  <div class="order-modal admin-small-modal" role="dialog" aria-modal="true" aria-labelledby="categoryFormTitle">
+    <div class="order-modal__header"><div class="order-modal__title"><span class="display" id="categoryFormTitle">Add Category</span><span class="mono">ALBAIK CHICKEN · MENU</span></div><div class="order-modal__actions"><button type="button" class="icon-btn" id="categoryFormClose" aria-label="Close">✕</button></div></div>
+    <div class="order-modal__body"><form id="categoryForm" novalidate><div class="auth-error" id="categoryFormError" hidden></div><div class="auth-field"><label for="categoryFormName">Name</label><input id="categoryFormName" type="text" autocomplete="off"></div><label class="auth-checkbox"><input id="categoryFormActive" type="checkbox" checked><span>Visible to staff</span></label><div class="admin-confirm-actions"><button type="button" class="admin-btn-secondary" id="categoryFormCancel">Cancel</button><button type="submit" class="admin-btn-primary" id="categoryFormSubmit">Save Category</button></div></form></div>
+  </div>
+</div>
+
+<!-- ============ LABEL FORM ============ -->
+<div class="order-overlay" id="labelFormOverlay">
+  <div class="order-modal admin-small-modal" role="dialog" aria-modal="true" aria-labelledby="labelFormTitle">
+    <div class="order-modal__header"><div class="order-modal__title"><span class="display" id="labelFormTitle">Add Label</span><span class="mono">ALBAIK CHICKEN · MENU</span></div><div class="order-modal__actions"><button type="button" class="icon-btn" id="labelFormClose" aria-label="Close">✕</button></div></div>
+    <div class="order-modal__body"><form id="labelForm" novalidate><div class="auth-error" id="labelFormError" hidden></div><div class="auth-field"><label for="labelFormName">Name</label><input id="labelFormName" type="text" autocomplete="off"></div><label class="auth-checkbox"><input id="labelFormActive" type="checkbox" checked><span>Visible for new menu assignments</span></label><div class="admin-confirm-actions"><button type="button" class="admin-btn-secondary" id="labelFormCancel">Cancel</button><button type="submit" class="admin-btn-primary" id="labelFormSubmit">Save Label</button></div></form></div>
+  </div>
+</div>
+
+<!-- ============ DELIVERY ZONE FORM ============ -->
+<div class="order-overlay" id="zoneFormOverlay">
+  <div class="order-modal admin-small-modal" role="dialog" aria-modal="true" aria-labelledby="zoneFormTitle">
+    <div class="order-modal__header"><div class="order-modal__title"><span class="display" id="zoneFormTitle">Add Delivery Zone</span><span class="mono">ALBAIK CHICKEN · DELIVERY</span></div><div class="order-modal__actions"><button type="button" class="icon-btn" id="zoneFormClose" aria-label="Close">✕</button></div></div>
+    <div class="order-modal__body"><form id="zoneForm" novalidate>
+      <div class="auth-error" id="zoneFormError" hidden></div>
+      <div class="auth-field"><label for="zoneFormName">Zone name</label><input id="zoneFormName" type="text" autocomplete="off" placeholder="e.g. Gwarzo Road &amp; Environs"></div>
+      <div class="auth-field"><label for="zoneFormFee">Delivery fee (₦)</label><input id="zoneFormFee" type="number" min="0" step="1" inputmode="decimal"></div>
+      <div class="auth-field"><label for="zoneFormArea">Coverage area (optional)</label><textarea id="zoneFormArea" rows="2" placeholder="Streets or landmarks this zone covers"></textarea></div>
+      <label class="auth-checkbox"><input id="zoneFormActive" type="checkbox" checked><span>Active</span></label>
+      <div class="admin-confirm-actions"><button type="button" class="admin-btn-secondary" id="zoneFormCancel">Cancel</button><button type="submit" class="admin-btn-primary" id="zoneFormSubmit">Save Zone</button></div>
+    </form></div>
+  </div>
+</div>
+
+<!-- ============ DELETE CONFIRM DIALOG ============ -->
+<div class="order-overlay" id="confirmOverlay">
+  <div class="order-modal admin-confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="order-modal__header">
+      <div class="order-modal__title">
+        <span class="display" id="confirmTitle">Are you sure?</span>
+      </div>
+      <div class="order-modal__actions">
+        <button type="button" class="icon-btn" id="confirmCloseBtn" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="order-modal__body">
+      <p id="confirmMessage"></p>
+      <div class="admin-confirm-actions">
+        <button type="button" class="admin-btn-secondary" id="confirmCancelBtn">Cancel</button>
+        <button type="button" class="admin-btn-secondary admin-btn-danger" id="confirmActionBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STAFF FORM MODAL (PRIORITY 15) ============ -->
+<div class="order-overlay" id="staffFormOverlay">
+  <div class="order-modal admin-staff-modal" role="dialog" aria-modal="true" aria-labelledby="staffFormTitle">
+    <div class="order-modal__header">
+      <div class="order-modal__title">
+        <span class="display" id="staffFormTitle">Add Staff Account</span>
+        <span class="mono">ALBAIK CHICKEN · TEAM &amp; ACCESS</span>
+      </div>
+      <div class="order-modal__actions">
+        <button type="button" class="icon-btn" id="staffFormClose" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="order-modal__body">
+      <div class="auth-error" id="staffFormError" hidden></div>
+      <form id="staffForm" novalidate>
+        <div class="auth-row">
+          <div class="auth-field">
+            <label for="staffFormName">Full Name</label>
+            <input type="text" id="staffFormName" autocomplete="off">
+          </div>
+          <div class="auth-field">
+            <label for="staffFormPosition">Position</label>
+            <input type="text" id="staffFormPosition" autocomplete="off" placeholder="e.g. Kitchen Staff, Manager">
+          </div>
+        </div>
+        <div class="auth-row">
+          <div class="auth-field">
+            <label for="staffFormEmail">Email</label>
+            <input type="email" id="staffFormEmail" autocomplete="off">
+          </div>
+          <div class="auth-field">
+            <label for="staffFormPhone">Phone (optional)</label>
+            <input type="text" id="staffFormPhone" autocomplete="off">
+          </div>
+        </div>
+        <div class="auth-field" id="staffFormPasswordWrap">
+          <label for="staffFormPassword">Temporary Password</label>
+          <input type="text" id="staffFormPassword" autocomplete="off">
+          <p class="admin-field-hint" id="staffFormPasswordNote"></p>
+        </div>
+        <div class="auth-field">
+          <label for="staffFormStatus">Status</label>
+          <select id="staffFormStatus">
+            <option value="active">Active</option>
+            <option value="disabled">Disabled</option>
+          </select>
+        </div>
+        <div class="auth-field">
+          <label>Dashboard Permissions</label>
+          <div class="admin-permission-list" id="staffFormPermissions"></div>
+        </div>
+        <div class="admin-confirm-actions">
+          <button type="button" class="admin-btn-secondary" id="staffFormCancel">Cancel</button>
+          <button type="submit" class="admin-btn-primary" id="staffFormSubmit">Add Staff Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FIRST-LOGIN PASSWORD CHANGE MODAL (PRIORITY 15) ============ -->
+<div class="order-overlay" id="passwordChangeOverlay">
+  <div class="order-modal admin-staff-modal" role="dialog" aria-modal="true" aria-labelledby="passwordChangeTitle">
+    <div class="order-modal__header">
+      <div class="order-modal__title">
+        <span class="display" id="passwordChangeTitle">Set Your Password</span>
+        <span class="mono">ALBAIK CHICKEN · FIRST SIGN-IN</span>
+      </div>
+      <div class="order-modal__actions">
+        <button type="button" class="icon-btn" id="passwordChangeClose" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="order-modal__body">
+      <p class="admin-field-hint" style="margin-bottom:14px">For security you must change your temporary password before continuing.</p>
+      <div class="auth-error" id="passwordChangeError" hidden></div>
+      <form id="passwordChangeForm" novalidate>
+        <div class="auth-field">
+          <label for="passwordChangeCurrent">Current (temporary) password</label>
+          <input type="password" id="passwordChangeCurrent" autocomplete="current-password" required>
+        </div>
+        <div class="auth-field">
+          <label for="passwordChangeNew">New password</label>
+          <input type="password" id="passwordChangeNew" autocomplete="new-password" required>
+        </div>
+        <div class="auth-field">
+          <label for="passwordChangeConfirm">Confirm new password</label>
+          <input type="password" id="passwordChangeConfirm" autocomplete="new-password" required>
+        </div>
+        <div class="admin-confirm-actions">
+          <button type="button" class="admin-btn-secondary" id="passwordChangeCancel">Sign Out Instead</button>
+          <button type="submit" class="admin-btn-primary" id="passwordChangeSubmit">Change Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ORDER DETAIL MODAL ============ -->
+<div class="order-overlay" id="orderDetailOverlay">
+  <div class="order-modal admin-order-detail-modal" role="dialog" aria-modal="true" aria-labelledby="orderDetailTitle">
+    <div class="order-modal__header">
+      <div class="order-modal__title">
+        <span class="display" id="orderDetailTitle">Order</span>
+        <span class="mono" id="orderDetailSubtitle">ALBAIK CHICKEN · ORDER DETAILS</span>
+      </div>
+      <div class="order-modal__actions">
+        <button type="button" class="icon-btn" id="orderDetailCloseBtn" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="order-modal__body">
+      <div class="admin-order-detail__section">
+        <h4>Customer</h4>
+        <div id="orderDetailCustomer"></div>
+      </div>
+      <div class="admin-order-detail__section">
+        <h4>Items</h4>
+        <div id="orderDetailItems"></div>
+      </div>
+      <div class="admin-order-detail__section">
+        <h4>Payment</h4>
+        <div id="orderDetailPayment"></div>
+      </div>
+      <div class="admin-order-detail__section" id="orderDetailNotesSection" hidden>
+        <h4>Notes</h4>
+        <p id="orderDetailNotes"></p>
+      </div>
+      <div class="admin-order-detail__section">
+        <h4>Status</h4>
+        <div class="timeline" id="orderDetailTimeline"></div>
+        <div id="orderDetailStatusControl"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FIRST-LOGIN PASSWORD CHANGE MODAL ============ -->
+<div class="order-overlay" id="passwordChangeOverlay">
+  <div class="order-modal admin-small-modal" role="dialog" aria-modal="true" aria-labelledby="passwordChangeTitle">
+    <div class="order-modal__header">
+      <div class="order-modal__title">
+        <span class="display" id="passwordChangeTitle">Change Your Password</span>
+        <span class="mono">ALBAIK CHICKEN · FIRST LOGIN</span>
+      </div>
+      <div class="order-modal__actions"><button type="button" class="icon-btn" id="passwordChangeClose" aria-label="Close">✕</button></div>
+    </div>
+    <div class="order-modal__body">
+      <p class="admin-field-hint" style="margin:0 0 14px;">You're using a temporary password. Please set a personal password before continuing.</p>
+      <div class="auth-error" id="passwordChangeError" hidden></div>
+      <form id="passwordChangeForm" novalidate>
+        <div class="auth-field"><label for="passwordChangeCurrent">Temporary / Current Password</label><input type="password" id="passwordChangeCurrent" autocomplete="current-password" required></div>
+        <div class="auth-field"><label for="passwordChangeNew">New Password</label><input type="password" id="passwordChangeNew" autocomplete="new-password" required></div>
+        <div class="auth-field"><label for="passwordChangeConfirm">Confirm New Password</label><input type="password" id="passwordChangeConfirm" autocomplete="new-password" required></div>
+        <div class="admin-confirm-actions">
+          <button type="button" class="admin-btn-secondary" id="passwordChangeCancel">Sign Out</button>
+          <button type="submit" class="admin-btn-primary" id="passwordChangeSubmit">Change Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STAFF FORM MODAL ============ -->
+<div class="order-overlay" id="staffFormOverlay">
+  <div class="order-modal admin-staff-modal" role="dialog" aria-modal="true" aria-labelledby="staffFormTitle">
+    <div class="order-modal__header">
+      <div class="order-modal__title">
+        <span class="display" id="staffFormTitle">Add Staff Member</span>
+        <span class="mono">ALBAIK CHICKEN · TEAM</span>
+      </div>
+      <div class="order-modal__actions">
+        <button type="button" class="icon-btn" id="staffFormClose" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="order-modal__body">
+      <div class="auth-error" id="staffFormError" hidden></div>
+      <form id="staffForm" novalidate>
+        <div class="auth-field">
+          <label for="staffFormName">Full Name</label>
+          <input type="text" id="staffFormName" autocomplete="off">
+        </div>
+        <div class="auth-field">
+          <label for="staffFormEmail">Email</label>
+          <input type="email" id="staffFormEmail" autocomplete="off">
+        </div>
+        <div class="auth-row">
+          <div class="auth-field">
+            <label for="staffFormPhone">Phone (optional)</label>
+            <input type="tel" id="staffFormPhone" autocomplete="off">
+          </div>
+          <div class="auth-field">
+            <label for="staffFormPosition">Position</label>
+            <input type="text" id="staffFormPosition" autocomplete="off" placeholder="e.g. Kitchen Staff">
+          </div>
+        </div>
+        <div class="auth-field" id="staffPasswordField">
+          <label for="staffFormPassword">Temporary Password</label>
+          <input type="text" id="staffFormPassword" autocomplete="off">
+          <p class="admin-field-hint">Auto-generated. The staff member changes this on first login.</p>
+        </div>
+        <div class="auth-field">
+          <label>Permissions</label>
+          <div class="admin-permission-list" id="staffFormPermissions"></div>
+        </div>
+        <div class="admin-confirm-actions">
+          <button type="button" class="admin-btn-secondary" id="staffFormCancel">Cancel</button>
+          <button type="submit" class="admin-btn-primary" id="staffFormSubmit">Create Staff</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/admin-app.js"></script>
+</body>
+</html>

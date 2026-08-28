@@ -1,0 +1,195 @@
+rules_version = '2';
+
+/* ============================================================
+   Deny-by-default until Firebase is actually configured (see
+   js/firebase.js) and this file is deployed.
+
+   Role model (matches js/auth.js and the users/{uid} schema in
+   js/firestore.js): every signed-in user gets a users/{uid}
+   document; role is 'customer' (default/absent), 'staff', or
+   'admin'. isStaffOrAdmin() below reads that document with get() —
+   the same pattern the reference project uses for its own
+   admins/{uid} collection, just checking a field on a shared users
+   collection instead of a separate admins collection, to match this
+   project's explicit user-profile schema.
+
+   users/{uid} and orders/{orderId} are active as of Phase 2.
+   menuItems/{reviews} are active as of Phase 3 — see each match
+   block below for what's specific about them. favorites has no
+   collection or rule of its own: it's a `favorites` array FIELD on
+   the existing users/{uid} document (see js/favorites.js), already
+   covered by that match block below.
+
+   PHASE 4: savedAddresses is the same story as favorites — a plain
+   array field on users/{uid} (js/addresses.js), no new rule needed.
+   verifiedPurchase on a review is covered by the EXISTING author-editing
+   branch of the reviews/{reviewId} update rule below (unchanged) —
+   see js/firestore.js's upsertReview for why that's the right branch
+   and the same client-computed-aggregate caveat menuItems' rating/
+   reviewCount already gets below. The one genuinely NEW collection
+   this phase adds is counters/orders, for js/firestore.js's
+   getNextOrderNumber() — see its own match block. orders/{orderId}'s
+   create rule also gained a userId-matches-auth check this phase
+   (previously any signed-in user's write was accepted at face value)
+   — checkout is what actually creates orders now, so this is real
+   hardening, not a preparatory placeholder.
+   ================================================================ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /orders/{orderId} {
+      // PHASE 4: added the userId match — checkout (js/order.js's
+      // placeOrder) always writes the real authenticated uid here, so a
+      // client claiming a DIFFERENT uid on create is never legitimate
+      // traffic, only either a bug or a spoofing attempt either way
+      // worth rejecting outright.
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read, update: if request.auth != null &&
+        (resource.data.userId == request.auth.uid || isStaffOrAdmin());
+      allow delete: if false;                        // orders are cancelled, never deleted
+    }
+
+    // PHASE 4. Backs js/firestore.js's getNextOrderNumber() — a single
+    // document, { value: <int> }, incremented inside a transaction.
+    // Every checkout is already required to be signed in by the time
+    // this runs (see js/order.js's placeOrder), so "any signed-in user"
+    // is the right scope here, same as orders/{orderId}'s own create
+    // rule; the meaningful restriction is the SHAPE of the write, not
+    // who's allowed to make it: allow create only for the very first
+    // counter value, and allow update only when it's incrementing by
+    // exactly 1 and touching nothing else. A client can't set this
+    // counter to an arbitrary value or use it to write anything else.
+    match /counters/{counterId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null &&
+        request.resource.data.keys().hasOnly(['value']) &&
+        request.resource.data.value == 1;
+      allow update: if request.auth != null &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['value']) &&
+        request.resource.data.value == resource.data.value + 1;
+      allow delete: if false;
+    }
+
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read: if isStaffOrAdmin();                // staff can look up a customer profile
+    }
+
+match /menuItems/{itemId} {
+      allow read: if true;                            // public menu
+      allow create, delete: if isStaffOrAdmin() && hasPermission('menu');
+      // [AUDIT FIX] menuItems documents no longer carry a rating/
+      // reviewCount aggregate at all — every rating/review-count figure
+      // is now calculated live, client-side, straight from the
+      // `reviews` collection (js/reviews-store.js), never stored on the
+      // item document. That's what closed the sync gap: the OLD
+      // denormalized aggregate was recomputed only by the customer-side
+      // review write path, so admin review moderation — which never
+      // touched a menu item document — left it stale. See that file's
+      // header comment for the full root-cause writeup. The narrow
+      // carve-out that used to live here (any signed-in customer could
+      // update ONLY rating/reviewCount on a menu item) existed solely
+      // to support that mechanism and is removed for the same reason:
+      // only staff/admin may write a menu item at all now.
+      allow update: if isStaffOrAdmin() && hasPermission('menu');
+    }
+
+    // Managed menu taxonomy. Reads remain public so customer-facing menu
+    // views can consume active categories/labels in a later enhancement;
+    // only staff/admin accounts with the matching permission may create,
+    // edit, reorder, or delete them.
+    match /menuCategories/{categoryId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin() && hasPermission('categories');
+    }
+
+    match /menuLabels/{labelId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin() && hasPermission('labels');
+    }
+
+    match /deliveryZones/{zoneId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin() && hasPermission('delivery');
+    }
+
+    // One document, intentionally public-read: checkout needs the active
+    // delivery fee and bank-transfer details, while only staff with the
+    // settings permission may change them from the Settings page.
+    match /restaurantSettings/{settingId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin() && hasPermission('settings');
+    }
+
+match /reviews/{reviewId} {
+      // PRIORITY 10: admin review moderation. Review doc ids are deterministic — `${itemId}_${uid}` — set by
+      // js/firestore.js's upsertReview(), which is what makes "one
+      // review per user per item" true by construction: a second write
+      // for the same (item, user) pair overwrites their own prior
+      // review instead of creating another. See that file's header
+      // comment for the (theoretical, not practical) collision caveat.
+      allow read: if true;
+      allow create: if request.auth != null
+        && reviewId == request.resource.data.itemId + '_' + request.auth.uid
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && (
+        // the review's own author editing rating/text/etc.
+        (reviewId == resource.data.itemId + '_' + request.auth.uid &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'text', 'verifiedPurchase', 'updatedAt'])) ||
+        // any OTHER signed-in customer replying or marking it helpful —
+        // restricted to just those fields, never rating/text/userId
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['helpfulBy', 'replies', 'updatedAt'])) ||
+// PRIORITY 10: staff/admin with the 'reviews' permission select
+        // moderating — may hide/restore the review (and reply to it), but
+        // can never edit the customer's rating or text. Set of permitted
+        // fields is the union of the moderation-only fields and the
+        // customer-reply fields above.
+        (isStaffOrAdmin() && hasPermission('reviews') &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['hidden', 'helpfulBy', 'replies', 'updatedAt']))
+      );
+      allow delete: if request.auth != null &&
+        (reviewId == resource.data.itemId + '_' + request.auth.uid || (isStaffOrAdmin() && hasPermission('reviews')));
+    }
+
+    // PRIORITY 15. Staff accounts. The Super Admin (role 'admin') can
+    // read/write every staff document; each individual staff member can
+    // read (NOT write) their own document — so they can see their own
+    // position/permissions/temp-password prompt, but can never modify
+    // their own permissions or those of anyone else, and can never see
+    // other staff members' documents at all. Write gates further require
+    // the caller to be an admin (isAdmin), not merely staff.
+    match /staff/{uid} {
+      allow read: if request.auth != null &&
+        (isAdmin() || request.auth.uid == uid);
+      allow write: if isAdmin();
+    }
+
+    function isAdmin(){
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isStaffOrAdmin(){
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['staff', 'admin'];
+    }
+
+    // PRIORITY 15. Per-permission gating. The Super Admin (users/{uid}
+    // role 'admin') always passes. A staff member passes only if their own
+    // staff/{uid}.permissions array contains the requested permission id.
+    // This is the server-side half of the permission system; the frontend
+    // mirrors it by hiding unauthorized sections entirely (admin-auth.js's
+    // setPermittedSections). A user can never reach a restricted write by
+    // typing a URL, because the write is denied here too.
+function hasPermission(permissionId){
+      if(!request.auth) return false;
+      if(get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') return true;
+      let perms = get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.permissions;
+      return perms != null && perms.hasAny([permissionId]);
+    }
+  }
+}

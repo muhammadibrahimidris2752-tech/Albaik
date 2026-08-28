@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Albaik Chicken — Kano's Nonstop Kitchen</title>
+<meta name="description" content="Albaik Chicken on Gwarzo Road, Kano. Crispy fried chicken, white rice & liver sauce, shawarma and burgers. Open 24 hours — dine-in, drive-through and delivery.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/header-nav.css">
+<link rel="stylesheet" href="css/hero.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/menu.css">
+<link rel="stylesheet" href="css/reviews.css">
+<link rel="stylesheet" href="css/order-modal.css">
+<link rel="stylesheet" href="css/product-grid.css">
+<link rel="stylesheet" href="css/product-modal.css">
+<link rel="stylesheet" href="css/auth-modal.css">
+<link rel="stylesheet" href="css/payment-tracking.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="wrap">
+      <a href="#top" class="brand">
+        <span class="display">Albaik Chicken</span>
+        <span class="mono">GWARZO ROAD · KANO</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#menu">Menu</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#visit">Visit</a></li>
+        <li class="nav-auth" id="navAuthArea"></li>
+        <li><button type="button" onclick="openContactSheet()">Call</button></li>
+        <li><button type="button" class="nav-cta" onclick="openOrderModal()">🛒 Order Now<span class="cart-badge" id="navCartBadge" hidden>0</span></button></li>
+      </ul>
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <header id="top" class="hero">
+    <div class="wrap">
+      <div class="hero-content">
+        <div class="hero-badge-row">
+          <span class="open-pill"><span class="pulse-dot"></span> Open now · 24 hours</span>
+          <span class="rating-pill" id="heroRatingPill">
+            <span id="heroRatingStars"></span>
+            <span id="heroRatingText">Loading reviews…</span>
+          </span>
+        </div>
+        <h1 class="display reveal">Fried fresh.<br>Served fast.<br><span>Never closed.</span></h1>
+        <p class="lede reveal reveal-delay-1">Kano's all-day chicken spot on Gwarzo Road — crispy fried chicken, peppered liver-sauce rice, and shawarma wrapped fresh, any hour you're craving it.</p>
+        <div class="hero-ctas reveal reveal-delay-2">
+          <button type="button" class="btn btn-primary" onclick="openOrderModal()">🛒 Order Now</button>
+          <button type="button" class="btn btn-ghost" onclick="openContactSheet()">📞 Call to Order</button>
+        </div>
+        <p class="hero-price reveal reveal-delay-3">Average cost per person <span class="mono">₦1,000 – ₦10,000</span> · Dine-in · Drive-through · Delivery</p>
+      </div>
+      <div class="stamp-wrap">
+        <svg class="stamp" viewBox="0 0 200 200" role="img" aria-label="Albaik Chicken seal — open 24 hours, Kano Nigeria">
+          <defs>
+            <path id="circleTop" d="M 24,100 A 76,76 0 1,1 176,100" />
+            <path id="circleBottom" d="M 176,103 A 76,76 0 1,1 24,103" />
+          </defs>
+          <circle cx="100" cy="100" r="92" class="stamp-ring-outer"/>
+          <circle cx="100" cy="100" r="78" class="stamp-ring-inner"/>
+          <text class="stamp-text"><textPath href="#circleTop" startOffset="50%" text-anchor="middle">OPEN 24 HOURS</textPath></text>
+          <text class="stamp-text"><textPath href="#circleBottom" startOffset="50%" text-anchor="middle">• KANO NIGERIA •</textPath></text>
+          <text x="100" y="98" text-anchor="middle" class="stamp-center">ALBAIK</text>
+          <text x="100" y="120" text-anchor="middle" class="stamp-sub">CHICKEN · EST. KANO</text>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="marquee-strip" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Crispy Fried Chicken</span><span>White Rice &amp; Liver Sauce</span><span>Shawarma</span><span>Chicken Burgers</span><span>Open 24 Hours</span><span>Drive-Through Ready</span>
+      <span>Crispy Fried Chicken</span><span>White Rice &amp; Liver Sauce</span><span>Shawarma</span><span>Chicken Burgers</span><span>Open 24 Hours</span><span>Drive-Through Ready</span>
+    </div>
+  </div>
+
+  <section class="about" id="about">
+    <div class="wrap">
+      <div class="about-copy reveal">
+        <p class="eyebrow">About the kitchen</p>
+        <h2 class="display">A Gwarzo Road regular's favourite</h2>
+        <p>Locals know Albaik Chicken as the clean, easygoing spot where the chicken is always crispy and the rice never runs out. Whether you're stopping by after work, swinging through the drive-through at midnight, or sending delivery to your doorstep, the kitchen doesn't stop — 24 hours, every single day.</p>
+        <div class="about-stats">
+          <div class="stat"><div class="num" id="aboutStatRating">—</div><div class="label mono">Star rating</div></div>
+          <div class="stat"><div class="num" id="aboutStatReviews">0</div><div class="label mono">Reviews</div></div>
+          <div class="stat"><div class="num">24/7</div><div class="label mono">Always open</div></div>
+        </div>
+      </div>
+      <div class="about-visual reveal reveal-delay-2">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="36" fill="none" stroke="#FFE402" stroke-width="1.5" stroke-dasharray="2 4"/>
+          <path d="M50 22c8 0 13 6 13 13 0 5-3 8-3 12 0 5 4 7 4 13 0 9-7 16-14 16s-14-7-14-16c0-6 4-8 4-13 0-4-3-7-3-12 0-7 5-13 13-13z" fill="#E8B400"/>
+          <path d="M44 60c-2 6-2 11 1 16 2-4 2-9 1-14" fill="#DE413A" opacity="0.85"/>
+          <path d="M56 60c2 6 2 11-1 16-2-4-2-9-1-14" fill="#DE413A" opacity="0.85"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="why">
+    <div class="wrap reveal">
+      <p class="eyebrow">Why Gwarzo Road keeps coming back</p>
+      <div class="chips">
+        <span class="chip">Generous rice portions</span>
+        <span class="chip">Easy on the wallet</span>
+        <span class="chip">Quick in, quick out</span>
+        <span class="chip">Local &amp; international plates</span>
+        <span class="chip">Spotless dining room</span>
+        <span class="chip">Friendly faces, every visit</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="zigzag" aria-hidden="true"></div>
+
+  <section class="menu" id="menu">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow on-indigo">What's cooking</p>
+        <h2 class="display">Menu highlights</h2>
+        <p>A few of the plates Gwarzo Road orders on repeat. Full menu and daily specials in-store and by phone.</p>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-card reveal reveal-delay-1">
+          <div class="menu-card__icon">
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M8 28 A24 20 0 0 0 56 28 Z" fill="var(--gold)"/>
+              <rect x="6" y="26" width="52" height="6" rx="3" fill="var(--gold)"/>
+              <ellipse cx="32" cy="22" rx="15" ry="9" fill="var(--cream)"/>
+              <path d="M38 15c3 1 5 4 4 7-3 0-6-2-7-5" fill="var(--pepper)"/>
+            </svg>
+          </div>
+          <span class="tag">Most Ordered</span>
+          <h3>White Rice, Liver Sauce &amp; Chicken</h3>
+          <p>Fluffy white rice, rich peppered liver sauce, and a generous cut of chicken — the dish regulars never skip.</p>
+        </div>
+        <div class="menu-card reveal reveal-delay-2">
+          <div class="menu-card__icon">
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M40 14c6 4 8 12 4 18-3 4-3 8 0 12 3 4 1 9-4 10-5 1-9-3-9-8 0-3-2-5-5-6-6-2-9-9-6-15 3-6 12-15 20-11z" fill="var(--gold)"/>
+              <path d="M22 46c-3 3-5 7-4 11" fill="none" stroke="var(--cream)" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="36" cy="24" r="2" fill="var(--cream)" opacity="0.6"/>
+              <circle cx="42" cy="32" r="2" fill="var(--cream)" opacity="0.6"/>
+            </svg>
+          </div>
+          <span class="tag">Signature</span>
+          <h3>Crispy Fried Chicken</h3>
+          <p>Golden, crackling, and seasoned all the way through — the bucket that built the name.</p>
+        </div>
+        <div class="menu-card reveal reveal-delay-3">
+          <div class="menu-card__icon">
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <rect x="6" y="22" width="44" height="20" rx="10" transform="rotate(-35 32 33)" fill="var(--gold)"/>
+              <circle cx="48.5" cy="17.5" r="9" transform="rotate(-35 32 33)" fill="var(--cream)"/>
+              <rect x="10" y="27" width="34" height="3" rx="1.5" transform="rotate(-35 32 33)" fill="var(--cream)" opacity="0.8"/>
+              <rect x="10" y="34" width="34" height="3" rx="1.5" transform="rotate(-35 32 33)" fill="var(--pepper)" opacity="0.85"/>
+            </svg>
+          </div>
+          <span class="tag">Grab &amp; Go</span>
+          <h3>Shawarma</h3>
+          <p>Wrapped fresh to order and packed with sauce — built for the drive-through window.</p>
+        </div>
+        <div class="menu-card reveal reveal-delay-4">
+          <div class="menu-card__icon">
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M8 28 A24 16 0 0 1 56 28 Z" fill="var(--gold)"/>
+              <rect x="7" y="29" width="50" height="6" rx="3" fill="var(--cream)"/>
+              <rect x="7" y="37" width="50" height="7" rx="3" fill="var(--pepper)"/>
+              <rect x="7" y="46" width="50" height="6" rx="3" fill="var(--gold)"/>
+              <rect x="5" y="53" width="54" height="6" rx="3" fill="var(--gold)"/>
+            </svg>
+          </div>
+          <span class="tag">Customer Favorite</span>
+          <h3>Chicken Burger</h3>
+          <p>A juicy patty stacked high, for when rice isn't the move.</p>
+        </div>
+      </div>
+      <p class="menu-note">Prices range ₦1,000 – ₦10,000 per person depending on order. Ask staff about today's specials.</p>
+      <div class="menu-cta reveal">
+        <button type="button" class="btn btn-primary" onclick="openOrderModal()">🛒 Order Now</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="reviews" id="reviews">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">Word on Gwarzo Road</p>
+        <h2 class="display">What customers are saying</h2>
+      </div>
+      <div class="review-summary reveal" id="reviewSummary">
+        <div class="score" id="reviewScore">—</div>
+        <div>
+          <span id="reviewScoreStars"></span>
+          <div class="score-meta" id="reviewScoreMeta">No reviews yet</div>
+        </div>
+      </div>
+      <div class="review-grid" id="reviewGrid">
+        <div class="review-grid__empty">No customer reviews yet. Be the first verified customer to leave a review.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="visit" id="visit">
+    <div class="wrap">
+      <div class="reveal">
+        <p class="eyebrow">Find us, any hour</p>
+        <h2 class="display">Visit Albaik Chicken</h2>
+
+        <div class="info-row">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-7.5-7-12a7 7 0 1 1 14 0c0 4.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <div><div class="label">Address</div><div class="value">Gwarzo Road, Kano 700282, Kano State · Plus Code XFJ8+8MF</div></div>
+        </div>
+        <div class="info-row">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <div><div class="label">Hours</div><div class="value">Open 24 hours, every day</div></div>
+        </div>
+        <div class="info-row">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92z"/></svg>
+          <div><div class="label">Phone</div><div class="value">0705 793 7677</div></div>
+        </div>
+
+        <div class="visit-ctas">
+          <button type="button" class="btn btn-primary" onclick="openContactSheet()">📞 Call to Order</button>
+          <a href="https://www.google.com/maps/search/?api=1&query=Albaik+Chicken%2C+Gwarzo+Road%2C+Kano%2C+Nigeria" target="_blank" rel="noopener" class="btn btn-pepper">📍 Get Directions</a>
+        </div>
+      </div>
+
+      <div class="services reveal reveal-delay-2">
+        <div class="service-card">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l2-6h14l2 6"/><path d="M3 11v7h18v-7"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="16.5" cy="18" r="1.5"/></svg>
+          <div><h3>Dine-in</h3><p>Clean, comfortable seating for a sit-down plate.</p></div>
+        </div>
+        <div class="service-card">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h13l4-4M3 12h13l4 4"/></svg>
+          <div><h3>Drive-through</h3><p>Stay in the car, order at the window, go.</p></div>
+        </div>
+        <div class="service-card">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h13v10H3z"/><path d="M16 10h3l2 3v4h-5z"/><circle cx="7" cy="19" r="1.6"/><circle cx="17.5" cy="19" r="1.6"/></svg>
+          <div><h3>Delivery</h3><p>Hot plates sent straight to your door.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div>
+        <div class="display">Albaik Chicken</div>
+        <div class="fine">Gwarzo Road, Kano · Open 24 hours · © 2026</div>
+      </div>
+      <ul class="footer-links">
+        <li><a href="#menu">Menu</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><button type="button" onclick="openContactSheet()">0705 793 7677</button></li>
+      </ul>
+    </div>
+  </footer>
+
+  <div class="mobile-bar">
+    <button type="button" class="call" onclick="openOrderModal()">🛒 Order Now</button>
+    <button type="button" class="dir" onclick="openContactSheet()">📞 Call</button>
+  </div>
+
+  <div class="order-overlay" id="orderOverlay">
+    <div class="order-modal" role="dialog" aria-modal="true" aria-label="Order online">
+
+      <div class="order-modal__header">
+        <div class="order-modal__title">
+          <span class="display" id="modalViewTitle">Order Online</span>
+          <span class="mono">ALBAIK CHICKEN · GWARZO ROAD</span>
+        </div>
+        <div class="order-modal__actions">
+          <button type="button" class="icon-btn" id="modalCartBtn" onclick="goToCart()" aria-label="View cart">
+            🛒<span class="cart-badge" id="modalCartBadge" hidden>0</span>
+          </button>
+          <button type="button" class="icon-btn" onclick="closeOrderModal()" aria-label="Close order panel">✕</button>
+        </div>
+      </div>
+
+      <div class="order-modal__body">
+
+        <div class="order-view active" id="view-menu">
+          <div class="menu-toolbar" id="menuToolbar">
+            <div class="menu-search">
+              <span class="menu-search__icon" aria-hidden="true">🔍</span>
+              <input type="search" id="menuSearchInput" placeholder="Search the menu…" aria-label="Search the menu" autocomplete="off">
+              <div class="search-suggestions" id="menuSearchSuggestions" hidden></div>
+            </div>
+            <div class="category-nav" id="categoryNav"></div>
+          </div>
+          <div class="menu-load-notice" id="menuLoadNotice" hidden></div>
+          <div class="product-grid" id="productGrid"></div>
+        </div>
+
+        <div class="order-view" id="view-cart">
+          <button type="button" class="back-link" onclick="showView('menu')">← Back to menu</button>
+          <div id="cartList"></div>
+
+          <div class="upsell" id="upsellBlock" style="display:none;">
+            <h4>Add to your order</h4>
+            <div class="upsell-row" id="upsellRow"></div>
+          </div>
+
+          <div class="order-type">
+            <button type="button" id="typeDelivery" class="active">🛵 Delivery<span class="sub" id="deliveryFeeSub">+ delivery fee</span></button>
+            <button type="button" id="typePickup">🏪 Pickup<span class="sub">No fee</span></button>
+          </div>
+
+          <div class="saved-address-picker" id="savedAddressPicker" hidden></div>
+
+          <div class="address-field" id="deliveryZoneField">
+            <label for="deliveryZoneInput">Delivery zone</label>
+            <div class="zone-search">
+              <input type="text" id="deliveryZoneInput" placeholder="Search your delivery zone…" autocomplete="off">
+              <div class="search-suggestions" id="deliveryZoneSuggestions" hidden></div>
+            </div>
+            <div class="err-msg">Please choose your delivery zone.</div>
+          </div>
+
+          <div class="address-field" id="addressField">
+            <label for="addressInput">Detailed address</label>
+            <textarea id="addressInput" rows="2" placeholder="e.g. House 57, Near Usman Bin Affan Mosque"></textarea>
+            <div class="err-msg">Please add your detailed address so your courier can find you.</div>
+          </div>
+
+          <div class="address-field" id="deliveryPhoneField">
+            <label for="deliveryPhoneInput">Phone number</label>
+            <input type="tel" id="deliveryPhoneInput" placeholder="e.g. 080..." autocomplete="tel">
+            <div class="err-msg">We need a phone number so your courier can reach you.</div>
+          </div>
+
+          <label class="auth-checkbox account-save-address-checkbox" id="saveAddressCheckboxWrap" hidden>
+            <input type="checkbox" id="saveAddressCheckbox">
+            <span>Save this address for next time</span>
+          </label>
+
+          <div class="address-field" id="pickupPhoneField">
+            <label for="pickupPhoneInput">Contact phone for pickup</label>
+            <input type="tel" id="pickupPhoneInput" placeholder="e.g. 080..." autocomplete="tel">
+            <div class="err-msg">We need a phone number to let you know when your order's ready.</div>
+          </div>
+
+          <div class="totals">
+            <div class="totals-row"><span>Subtotal</span><span class="mono" id="subtotalVal">₦0</span></div>
+            <div class="totals-row" id="feeRow"><span>Delivery fee</span><span class="mono" id="feeVal">₦0</span></div>
+            <div class="totals-row grand"><span>Total</span><span class="mono" id="totalVal">₦0</span></div>
+          </div>
+        </div>
+
+        <div class="order-view" id="view-payment">
+          <button type="button" class="back-link" onclick="showView('cart')">← Back to cart</button>
+
+          <div class="pay-summary">
+            <div class="pay-summary__row"><span>Items</span><span class="mono" id="paySummaryCount">0</span></div>
+            <div class="pay-summary__row"><span id="paySummaryTypeLabel">Delivery to</span><span class="mono" id="paySummaryType">—</span></div>
+            <div class="pay-summary__row grand"><span>Total to pay</span><span class="mono" id="paySummaryTotal">₦0</span></div>
+          </div>
+
+          <div class="order-type">
+            <button type="button" id="payTransfer" class="active">🏦 Bank Transfer</button>
+            <button type="button" id="payCash">💵 <span id="payCashLabel">Pay on Delivery</span></button>
+          </div>
+
+          <div class="transfer-card" id="transferCard">
+            <p class="transfer-note">Send the exact amount below, then confirm — we'll start preparing your order right away.</p>
+            <div class="transfer-row"><span class="label">Bank</span><span class="value" id="bankName">—</span></div>
+            <div class="transfer-row">
+              <span class="label">Account No.</span>
+              <span class="value mono" id="bankAcctNum">—</span>
+              <button type="button" class="copy-btn" id="copyAcctBtn">Copy</button>
+            </div>
+            <div class="transfer-row"><span class="label">Account Name</span><span class="value" id="bankAcctName">—</span></div>
+            <div class="transfer-row amount"><span class="label">Amount</span><span class="value mono" id="transferAmount">₦0</span></div>
+          </div>
+
+          <div class="cash-card" id="cashCard">
+            <div class="cash-card__icon">💵</div>
+            <p>Have <strong id="cashAmount">₦0</strong> ready. You'll pay when your order <span id="cashWhen">arrives</span>.</p>
+          </div>
+
+          <div class="auth-error" id="checkoutError" hidden></div>
+        </div>
+
+        <div class="order-view" id="view-tracking">
+          <div class="order-confirm-banner">
+            <div class="em">🎉</div>
+            <h3>Order placed!</h3>
+            <p class="mono">Order <span id="orderIdVal">#AB-0000</span> · <span id="orderTypeVal">Delivery</span></p>
+            <p class="pay-status" id="orderPaymentVal">💵 Pay on delivery</p>
+          </div>
+          <div class="timeline" id="timeline"></div>
+          <div class="enjoy-card" id="enjoyCard">
+            <div class="em">🍗</div>
+            <h3>Enjoy your meal!</h3>
+            <p>Thank you for ordering from Albaik Chicken. We hope every bite hits the spot.</p>
+          </div>
+          <div class="tracking-actions">
+            <button type="button" class="new-order-btn" id="orderAgainBtn">Order Again</button>
+            <button type="button" class="new-order-btn" id="newOrderBtn">Start a new order</button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="order-modal__footer" id="modalFooter">
+        <button type="button" class="place-order-btn" id="viewCartBtn" onclick="goToCart()">
+          View Cart · <span id="footerCount">0</span> item(s) · <span class="mono" id="footerSubtotal">₦0</span>
+        </button>
+        <button type="button" class="place-order-btn" id="continueBtn" style="display:none;" onclick="continueToPayment()" disabled>
+          Continue to Payment
+        </button>
+        <button type="button" class="place-order-btn" id="confirmPaymentBtn" style="display:none;" onclick="confirmPaymentAndPlaceOrder()">
+          I've Sent the Transfer ✅
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="order-overlay" id="contactOverlay">
+    <div class="order-modal contact-modal" role="dialog" aria-modal="true" aria-label="Contact Albaik Chicken">
+      <div class="order-modal__header">
+        <div class="order-modal__title">
+          <span class="display">Get in Touch</span>
+          <span class="mono">ALBAIK CHICKEN · GWARZO ROAD</span>
+        </div>
+        <div class="order-modal__actions">
+          <button type="button" class="icon-btn" onclick="closeContactSheet()" aria-label="Close contact options">✕</button>
+        </div>
+      </div>
+
+      <div class="order-modal__body contact-body">
+        <div class="contact-phone-row">
+          <span class="contact-phone-num mono">0705 793 7677</span>
+          <button type="button" class="add-btn" id="copyPhoneBtn">Copy</button>
+        </div>
+
+        <div class="contact-options">
+          <a href="tel:+2347057937677" class="contact-option">
+            <span class="contact-option__icon">📞</span>
+            <span class="contact-option__text"><strong>Call Now</strong><span>Speak to us directly</span></span>
+            <span class="contact-option__arrow">→</span>
+          </a>
+          <a href="https://wa.me/2347057937677?text=Hi%2C%20I%27d%20like%20to%20place%20an%20order%20from%20Albaik%20Chicken" target="_blank" rel="noopener" class="contact-option">
+            <span class="contact-option__icon">💬</span>
+            <span class="contact-option__text"><strong>Message on WhatsApp</strong><span>Chat with us anytime</span></span>
+            <span class="contact-option__arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="order-overlay" id="authOverlay">
+    <div class="order-modal auth-modal" role="dialog" aria-modal="true" aria-label="Account">
+
+      <div class="order-modal__header">
+        <div class="order-modal__title">
+          <span class="display" id="authModalTitle">Sign In</span>
+          <span class="mono">ALBAIK CHICKEN · GWARZO ROAD</span>
+        </div>
+        <div class="order-modal__actions">
+          <button type="button" class="icon-btn" id="authCloseBtn" aria-label="Close">✕</button>
+        </div>
+      </div>
+
+      <div class="order-modal__body">
+        <div class="auth-checkout-banner" id="authCheckoutBanner" hidden>Sign in to complete your order — your cart is safe, and we'll bring you right back to checkout.</div>
+
+        <div class="order-view active" id="authView-signin">
+          <div class="auth-error" id="signinError" hidden></div>
+          <form id="signinForm" novalidate>
+            <div class="auth-field">
+              <label for="signinEmail">Email address</label>
+              <input type="email" id="signinEmail" autocomplete="email">
+            </div>
+            <div class="auth-field">
+              <label for="signinPassword">Password</label>
+              <input type="password" id="signinPassword" autocomplete="current-password">
+            </div>
+            <label class="auth-checkbox">
+              <input type="checkbox" id="signinKeepSignedIn" checked>
+              <span>Keep me signed in</span>
+            </label>
+            <button type="button" class="link-btn" id="forgotPasswordLink">Forgot password?</button>
+            <button type="submit" class="place-order-btn" id="signinSubmitBtn">Sign In</button>
+          </form>
+
+          <div class="auth-divider"><span>or</span></div>
+
+          <button type="button" class="google-btn" id="googleSignInBtn">
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+              <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
+              <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.87-3.04.87-2.34 0-4.32-1.58-5.03-3.7H.95v2.33A9 9 0 0 0 9 18z"/>
+              <path fill="#FBBC05" d="M3.97 10.73A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.2.29-1.73V4.94H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.06l3.02-2.33z"/>
+              <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.59-2.59A8.6 8.6 0 0 0 9 0 9 9 0 0 0 .95 4.94l3.02 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <p class="auth-switch">Don't have an account? <button type="button" id="goToSignupLink">Create one</button></p>
+        </div>
+
+        <div class="order-view" id="authView-signup">
+          <div class="auth-error" id="signupError" hidden></div>
+          <form id="signupForm" novalidate>
+            <div class="auth-row">
+              <div class="auth-field">
+                <label for="signupFirstName">First name</label>
+                <input type="text" id="signupFirstName" autocomplete="given-name">
+              </div>
+              <div class="auth-field">
+                <label for="signupLastName">Last name</label>
+                <input type="text" id="signupLastName" autocomplete="family-name">
+              </div>
+            </div>
+            <div class="auth-field">
+              <label for="signupEmail">Email address</label>
+              <input type="email" id="signupEmail" autocomplete="email">
+            </div>
+            <div class="auth-field">
+              <label for="signupPhone">Phone number</label>
+              <input type="tel" id="signupPhone" autocomplete="tel">
+            </div>
+            <div class="auth-field">
+              <label for="signupPassword">Password</label>
+              <input type="password" id="signupPassword" autocomplete="new-password">
+            </div>
+            <div class="auth-field">
+              <label for="signupConfirmPassword">Confirm password</label>
+              <input type="password" id="signupConfirmPassword" autocomplete="new-password">
+            </div>
+            <div class="auth-field__hint">Use at least 6 characters.</div>
+            <label class="auth-checkbox">
+              <input type="checkbox" id="signupTerms">
+              <span>I agree to the Terms of Use</span>
+            </label>
+            <button type="submit" class="place-order-btn" id="signupSubmitBtn">Create Account</button>
+          </form>
+          <p class="auth-switch">Already have an account? <button type="button" id="goToSigninLink">Sign in</button></p>
+        </div>
+
+        <div class="order-view" id="authView-forgot">
+          <button type="button" class="back-link" id="forgotBackLink">← Back to sign in</button>
+          <p class="auth-help-text">Enter the email on your account and we'll send you a link to reset your password.</p>
+          <div class="auth-error" id="forgotError" hidden></div>
+          <div class="auth-success" id="forgotSuccess" hidden></div>
+          <form id="forgotForm" novalidate>
+            <div class="auth-field">
+              <label for="forgotEmail">Email address</label>
+              <input type="email" id="forgotEmail" autocomplete="email">
+            </div>
+            <button type="submit" class="place-order-btn" id="forgotSubmitBtn">Send Reset Link</button>
+          </form>
+        </div>
+
+        <div class="order-view" id="authView-account">
+          <div class="account-avatar" id="accountAvatar">
+            <span id="accountAvatarInitials">A</span>
+            <img id="accountAvatarImg" alt="" hidden>
+            <button type="button" class="account-avatar__upload" id="accountAvatarUploadBtn" aria-label="Change profile picture">📷</button>
+            <input type="file" accept="image/*" id="accountAvatarInput" hidden>
+          </div>
+
+          <div class="account-info" id="accountInfoDisplay">
+            <div class="account-row"><span class="label">Name</span><span class="value" id="accountName">—</span></div>
+            <div class="account-row"><span class="label">Email</span><span class="value" id="accountEmail">—</span></div>
+            <div class="account-row"><span class="label">Phone</span><span class="value" id="accountPhone">—</span></div>
+            <button type="button" class="account-info__edit-btn" id="accountEditBtn">Edit</button>
+          </div>
+
+          <form class="account-edit-profile" id="accountEditForm" hidden novalidate>
+            <div class="auth-error" id="accountEditError" hidden></div>
+            <div class="auth-field">
+              <label for="accountEditName">Full name</label>
+              <input type="text" id="accountEditName">
+            </div>
+            <div class="auth-field">
+              <label for="accountEditPhone">Phone number</label>
+              <input type="tel" id="accountEditPhone">
+            </div>
+            <div class="account-inline-form__actions">
+              <button type="submit" class="place-order-btn" id="accountEditSaveBtn">Save Changes</button>
+              <button type="button" class="account-inline-form__cancel" id="accountEditCancelBtn">Cancel</button>
+            </div>
+          </form>
+
+          <button type="button" class="account-orders-link" id="viewOrderHistoryBtn">📦 View Order History →</button>
+
+          <div class="account-favorites">
+            <h4>Your Favorites</h4>
+            <p class="account-favorites__empty" id="accountFavoritesEmpty">You haven't favorited any dishes yet — tap the ♡ on any item to save it here.</p>
+            <div class="account-favorites__list" id="accountFavoritesList"></div>
+          </div>
+
+          <div class="account-addresses">
+            <h4 class="account-section-heading">Saved Addresses</h4>
+            <p class="account-favorites__empty" id="accountAddressesEmpty">No saved addresses yet.</p>
+            <div id="accountAddressesList"></div>
+            <form class="account-inline-form" id="addressForm" novalidate>
+              <input type="hidden" id="addressFormEditingId" value="">
+              <div class="auth-field">
+                <input type="text" id="addressLabelInput" placeholder="Label (e.g. Home, Office)" maxlength="40">
+              </div>
+              <div class="auth-field">
+                <div class="zone-search">
+                  <input type="text" id="addressZoneInput" placeholder="Search your delivery zone…" autocomplete="off">
+                  <div class="search-suggestions" id="addressZoneSuggestions" hidden></div>
+                </div>
+              </div>
+              <div class="auth-field">
+                <input type="tel" id="addressPhoneInput" placeholder="Phone number" autocomplete="tel">
+              </div>
+              <div class="auth-field">
+                <textarea id="addressTextInput" rows="2" placeholder="Detailed address (e.g. House 57, Near Usman Bin Affan Mosque)"></textarea>
+              </div>
+              <div class="auth-error" id="addressFormError" hidden></div>
+              <div class="account-inline-form__actions">
+                <button type="submit" class="place-order-btn" id="addressFormSubmitBtn">Add Address</button>
+                <button type="button" class="account-inline-form__cancel" id="addressFormCancelBtn" hidden>Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="account-reviews">
+            <h4 class="account-section-heading">Your Reviews</h4>
+            <p class="section-loading" id="accountReviewsLoading">Loading your reviews…</p>
+            <p class="account-favorites__empty" id="accountReviewsEmpty" hidden>You haven't written any reviews yet.</p>
+            <div id="accountReviewsList"></div>
+          </div>
+
+          <div class="account-password" id="accountPasswordSection">
+            <h4 class="account-section-heading">Change Password</h4>
+            <div class="auth-error" id="changePasswordError" hidden></div>
+            <div class="auth-success" id="changePasswordSuccess" hidden></div>
+            <form id="changePasswordForm" novalidate>
+              <div class="auth-field">
+                <label for="currentPasswordInput">Current password</label>
+                <input type="password" id="currentPasswordInput" autocomplete="current-password">
+              </div>
+              <div class="auth-field">
+                <label for="newPasswordInput">New password</label>
+                <input type="password" id="newPasswordInput" autocomplete="new-password">
+              </div>
+              <div class="auth-field">
+                <label for="confirmNewPasswordInput">Confirm new password</label>
+                <input type="password" id="confirmNewPasswordInput" autocomplete="new-password">
+              </div>
+              <button type="submit" class="place-order-btn" id="changePasswordSubmitBtn">Update Password</button>
+            </form>
+          </div>
+
+          <button type="button" class="place-order-btn auth-signout-btn" id="signOutBtn">Sign Out</button>
+        </div>
+
+        <div class="order-view" id="authView-orders">
+          <button type="button" class="back-link" id="ordersBackLink">← Back to account</button>
+          <p class="account-favorites__empty" id="ordersListEmpty" hidden>You haven't placed any orders yet.</p>
+          <p class="account-favorites__empty account-favorites__empty--error" id="ordersListError" hidden>Couldn't load your orders — check your connection and try reopening this page.</p>
+          <div id="ordersList"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="order-overlay" id="productOverlay">
+    <div class="order-modal product-modal" role="dialog" aria-modal="true" aria-label="Product details">
+      <div class="order-modal__header">
+        <div class="order-modal__title">
+          <span class="display" id="productModalTitle">Product</span>
+          <span class="mono">ALBAIK CHICKEN · GWARZO ROAD</span>
+        </div>
+        <div class="order-modal__actions">
+          <button type="button" class="icon-btn" id="productCloseBtn" aria-label="Close product details">✕</button>
+        </div>
+      </div>
+
+      <div class="order-modal__body" id="productModalBody">
+        <div class="product-modal__hero">
+          <img id="productHeroImg" alt="">
+          <div class="product-modal__fallback" id="productHeroFallback"></div>
+          <div class="product-modal__badges" id="productBadges"></div>
+          <button type="button" class="product-modal__fav" id="productFavBtn" aria-label="Toggle favorite">♡</button>
+        </div>
+        <div class="product-modal__info">
+          <h2 class="product-modal__heading display" id="productHeading"></h2>
+          <div class="product-modal__rating" id="productRating"></div>
+          <div class="product-modal__pills" id="productPills"></div>
+          <p class="product-modal__desc" id="productDesc"></p>
+          <div class="product-modal__meta-grid" id="productMetaGrid"></div>
+          <div class="product-modal__price-row">
+            <span class="product-modal__price" id="productPrice"></span>
+            <div class="product-modal__qty" id="productQtyWrap"></div>
+          </div>
+          <div class="product-modal__trust-row">
+            <span>✓ 100% Halal</span>
+            <span>🌿 Freshly Made</span>
+            <span>📦 Secure Packaging</span>
+          </div>
+        </div>
+        <div class="product-modal__related" id="productRelated" hidden></div>
+        <div class="product-modal__reviews" id="productReviews"></div>
+      </div>
+    </div>
+  </div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

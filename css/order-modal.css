@@ -1,0 +1,297 @@
+/* The order modal: overlay/frame/header/footer, view switching, the
+   cart (steppers, cart lines, upsell, fulfilment toggle, address
+   field, totals), and the contact sheet (which reuses this same
+   modal chrome). PHASE 3 moved the menu-browsing view's own styling
+   (category nav, search bar, product-card grid) out to
+   css/product-grid.css, and the Product Details modal to
+   css/product-modal.css — both still reuse .order-overlay/.order-modal/
+   .order-modal__header/.icon-btn/.place-order-btn from here rather
+   than duplicating modal chrome, same as the auth modal already did
+   in Phase 2. .add-btn/.qty-stepper stay HERE (not moved) since cart
+   lines use them too, via js/ui.js's exported buildAddBtn/buildStepper.
+   Payment- and tracking-view-specific styling lives in
+   payment-tracking.css instead. */
+
+/* ================= ORDER SYSTEM ================= */
+
+.cart-badge{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:18px; height:18px; padding:0 5px;
+    background:var(--pepper); color:var(--cream);
+    border-radius:999px; font-family:'DM Mono', monospace; font-size:0.66rem;
+  }
+
+/* .cart-badge's own display:inline-flex above is an author-stylesheet
+   rule, which always wins over the browser's default [hidden]{display:
+   none} (a user-agent rule — author styles outrank user-agent styles in
+   the cascade regardless of specificity or source order). Without this
+   rule, setting badge.hidden = true in js/ui.js's updateCartBadge() had
+   zero visual effect — the badge stayed visible showing whatever count
+   was last written into it. This selector's higher specificity (two
+   selectors, not one) settles it within the same origin too, so the
+   hidden state reliably wins here. */
+.cart-badge[hidden]{ display:none; }
+
+.order-overlay{
+    position:fixed; inset:0; z-index:200;
+    background:rgba(61,15,11,0.62);
+    display:flex; align-items:flex-end; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
+  }
+
+.order-overlay.open{ opacity:1; pointer-events:auto; }
+
+.order-modal{
+    width:100%; max-width:480px; max-height:92vh;
+    background:var(--cream); color:var(--charcoal);
+    border-radius:24px 24px 0 0;
+    display:flex; flex-direction:column;
+    transform:translateY(100%);
+    transition:transform .32s cubic-bezier(.2,.85,.3,1);
+    box-shadow:0 -20px 50px rgba(61,15,11,0.35);
+  }
+
+.order-overlay.open .order-modal{ transform:translateY(0); }
+
+.order-modal__header{
+    flex:none;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 22px; border-bottom:1px solid var(--line-on-cream);
+    background:var(--indigo); color:var(--cream); border-radius:24px 24px 0 0;
+  }
+
+.order-modal__title{ display:flex; flex-direction:column; }
+
+.order-modal__title .display{ font-size:1.2rem; color:var(--gold-bright); }
+
+.order-modal__title .mono{ font-size:0.62rem; letter-spacing:0.14em; opacity:0.7; }
+
+.order-modal__actions{ display:flex; align-items:center; gap:10px; }
+
+.icon-btn{
+    background:rgba(251,244,230,0.1); border:1px solid var(--line-on-indigo);
+    width:38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--cream); cursor:pointer; font-size:1rem; position:relative;
+    transition:background .2s ease; font-family:inherit; appearance:none; -webkit-appearance:none;
+  }
+
+.icon-btn:hover{ background:rgba(251,244,230,0.2); }
+
+.order-modal__body{ padding:20px 22px 0; overflow-y:auto; flex:1; }
+
+.order-view{ display:none; }
+
+.order-view.active{ display:block; animation:view-in .3s ease; }
+
+.add-btn{
+    flex:none; background:var(--indigo); color:var(--cream);
+    border:0; padding:9px 16px; border-radius:999px; font-weight:700; font-size:0.84rem;
+    cursor:pointer; transition:background .2s ease, transform .2s ease; font-family:inherit;
+  }
+
+.add-btn:hover{ background:var(--indigo-deep); transform:translateY(-1px); }
+
+.qty-stepper{
+    flex:none; display:flex; align-items:center; gap:0;
+    background:var(--indigo); border-radius:999px; overflow:hidden;
+  }
+
+.qty-stepper button{
+    width:32px; height:32px; border:0; background:none; color:var(--cream);
+    font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background .2s ease; font-family:inherit;
+  }
+
+.qty-stepper button:hover{ background:rgba(251,244,230,0.15); }
+
+.qty-stepper .qty-num{
+    min-width:24px; text-align:center; color:var(--cream); font-family:'DM Mono', monospace; font-size:0.88rem;
+  }
+
+.back-link{
+    display:inline-flex; align-items:center; gap:6px; background:none; border:0;
+    color:var(--charcoal); opacity:0.65; font-size:0.85rem; cursor:pointer; padding:4px 0 16px;
+    font-family:inherit;
+  }
+
+.back-link:hover{ opacity:1; }
+
+.empty-cart{ text-align:center; padding:50px 10px; opacity:0.6; }
+
+.empty-cart .big{ font-size:2.4rem; margin-bottom:10px; }
+
+.cart-line{
+    display:flex; align-items:center; gap:12px; padding:14px 0;
+    border-bottom:1px solid var(--line-on-cream);
+  }
+
+.cart-line__info{ flex:1; min-width:0; }
+
+.cart-line__info .name{ font-weight:700; font-size:0.9rem; }
+
+.cart-line__info .unit{ font-size:0.74rem; opacity:0.6; margin-top:2px; }
+
+.cart-line__stepper{ flex:none; }
+
+.cart-line__total{
+    flex:none; font-family:'DM Mono', monospace; font-size:0.85rem; font-weight:600; min-width:60px; text-align:right;
+  }
+
+.remove-btn{
+    flex:none; background:none; border:0; color:var(--pepper); cursor:pointer;
+    font-size:0.95rem; padding:6px; opacity:0.7; transition:opacity .2s ease; font-family:inherit;
+  }
+
+.remove-btn:hover{ opacity:1; }
+
+.upsell{ margin:24px 0 4px; }
+
+.upsell h4{ font-family:'DM Mono', monospace; font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; opacity:0.55; margin-bottom:10px; }
+
+.upsell-row{ display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; }
+
+.upsell-chip{
+    flex:none; display:flex; align-items:center; gap:7px;
+    background:var(--cream-dim); border:1px solid var(--line-on-cream);
+    padding:9px 14px 9px 10px; border-radius:999px; font-size:0.78rem; cursor:pointer;
+    white-space:nowrap; transition:background .2s ease; font-family:inherit;
+  }
+
+.upsell-chip:hover{ background:var(--gold); }
+
+.upsell-chip .em{ font-size:1.05rem; }
+
+.order-type{
+    display:flex; gap:10px; margin:22px 0 4px; background:var(--cream-dim);
+    padding:5px; border-radius:14px;
+  }
+
+.order-type button{
+    flex:1; border:0; background:none; padding:12px 10px; border-radius:10px;
+    font-weight:700; font-size:0.86rem; cursor:pointer; color:var(--charcoal);
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    transition:background .2s ease, color .2s ease; font-family:inherit;
+  }
+
+.order-type button .sub{ font-family:'DM Mono', monospace; font-weight:500; font-size:0.7rem; opacity:0.65; }
+
+.order-type button.active{ background:var(--indigo); color:var(--cream); }
+
+.order-type button.active .sub{ color:var(--gold-bright); opacity:0.9; }
+
+.address-field{ margin:18px 0 4px; }
+
+.address-field label{ font-family:'DM Mono', monospace; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; opacity:0.6; }
+
+.address-field input{
+    width:100%; margin-top:8px; padding:13px 14px; border-radius:12px;
+    border:1px solid var(--line-on-cream); background:#fff; font-family:'Work Sans', sans-serif;
+    font-size:0.92rem; color:var(--charcoal);
+  }
+
+.address-field input:focus{ outline:2px solid var(--gold); border-color:transparent; }
+
+.address-field.error input{ border-color:var(--pepper); }
+
+/* PHASE 4 (Delivery Zone checkout redesign). addressInput became a
+   <textarea> (was a single-line <input>) to fit the brief's multi-line
+   "House 57, Near Usman Bin Affan Mosque" example — same visual
+   treatment as the input above it, just resize:vertical so a long
+   address doesn't force horizontal scrolling. */
+.address-field textarea{
+    width:100%; margin-top:8px; padding:13px 14px; border-radius:12px;
+    border:1px solid var(--line-on-cream); background:#fff; font-family:'Work Sans', sans-serif;
+    font-size:0.92rem; color:var(--charcoal); resize:vertical;
+  }
+
+.address-field textarea:focus{ outline:2px solid var(--gold); border-color:transparent; }
+
+.address-field.error textarea{ border-color:var(--pepper); }
+
+/* The delivery-zone searchable dropdown (js/zone-picker.js) needs a
+   position:relative ancestor for its .search-suggestions list (see
+   css/product-grid.css's .menu-search, the same pattern reused here) —
+   the text input inside still picks up .address-field input's styling
+   above unchanged. */
+.zone-search{ position:relative; }
+
+.address-field .err-msg{ display:none; color:var(--pepper); font-size:0.76rem; margin-top:6px; }
+
+.address-field.error .err-msg{ display:block; }
+
+.totals{ margin:22px 0 18px; padding-top:14px; border-top:1px dashed var(--line-on-cream); }
+
+.totals-row{ display:flex; justify-content:space-between; font-size:0.88rem; padding:5px 0; opacity:0.8; }
+
+.totals-row.grand{ font-size:1.1rem; font-weight:800; opacity:1; padding-top:10px; border-top:1px solid var(--line-on-cream); margin-top:6px; }
+
+.totals-row.grand .mono{ color:var(--pepper); }
+
+.order-modal__footer{ flex:none; padding:16px 22px; border-top:1px solid var(--line-on-cream); background:var(--cream); }
+
+.place-order-btn{
+    width:100%; padding:16px; border:0; border-radius:999px;
+    background:var(--gold); color:var(--indigo-deep); font-weight:800; font-size:1rem;
+    cursor:pointer; transition:background .2s ease, transform .2s ease;
+    display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit;
+  }
+
+.place-order-btn:hover{ background:var(--gold-bright); transform:translateY(-1px); }
+
+.place-order-btn:disabled{ background:var(--cream-dim); color:rgba(36,27,20,0.4); cursor:not-allowed; transform:none; }
+
+/* contact sheet */
+
+.contact-body{ padding-bottom:26px; }
+
+.contact-phone-row{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--cream-dim); border-radius:14px; padding:14px 16px; margin-bottom:20px;
+  }
+
+.contact-phone-num{ font-size:1.05rem; font-weight:700; letter-spacing:0.02em; }
+
+.contact-options{ display:flex; flex-direction:column; gap:12px; }
+
+.contact-option{
+    display:flex; align-items:center; gap:14px;
+    background:var(--indigo); color:var(--cream);
+    border-radius:16px; padding:16px 18px;
+    transition:transform .2s ease, background .2s ease;
+  }
+
+.contact-option:hover{ background:var(--indigo-deep); transform:translateY(-2px); }
+
+.contact-option__icon{ font-size:1.6rem; flex:none; }
+
+.contact-option__text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+
+.contact-option__text strong{ font-size:0.98rem; }
+
+.contact-option__text span{ font-size:0.78rem; opacity:0.7; }
+
+.contact-option__arrow{ flex:none; font-size:1.2rem; color:var(--gold-bright); }
+
+/* ============================================================
+   PHASE 4 — saved-address picker and "save this address" checkbox in
+   the cart view's delivery-address field (spec section 10), and the
+   pickup contact-phone field (#pickupPhoneField, spec section 6) —
+   the latter is deliberately unstyled here: it reuses .address-field/
+   .err-msg above as-is (a second element with that same class, styled
+   identically, needs zero new rules — see js/order.js and js/ui.js's
+   own comments on this).
+   ================================================================ */
+
+.saved-address-picker{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 10px; }
+
+.saved-address-chip{
+    flex:none; background:var(--cream-dim); border:1px solid var(--line-on-cream);
+    padding:7px 13px; border-radius:999px; font-size:0.76rem; font-weight:600; cursor:pointer;
+    white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis;
+    transition:background .2s ease; font-family:inherit; color:var(--charcoal);
+  }
+.saved-address-chip:hover{ background:var(--gold); }
+
+.account-save-address-checkbox{ margin-top:2px; }

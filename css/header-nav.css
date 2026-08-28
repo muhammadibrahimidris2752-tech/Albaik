@@ -1,0 +1,80 @@
+/* Sticky top navigation. */
+
+/* ---------- nav ---------- */
+
+.nav{
+    position:sticky; top:0; z-index:80;
+    background:rgba(122,33,24,0.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line-on-indigo);
+  }
+
+.nav .wrap{ display:flex; align-items:center; justify-content:space-between; height:72px; }
+
+.brand{ display:flex; flex-direction:column; line-height:1; color:var(--cream); }
+
+.brand .display{ font-size:1.45rem; letter-spacing:0.03em; color:var(--gold-bright); }
+
+.brand .mono{ font-size:0.62rem; letter-spacing:0.22em; opacity:0.7; margin-top:3px; }
+
+.nav-links{ display:flex; align-items:center; gap:32px; }
+
+.nav-links a, .nav-links button:not(.nav-cta){
+    color:var(--cream); opacity:0.82; font-weight:500; font-size:0.95rem;
+    position:relative; padding:4px 0;
+    background:none; border:0; font-family:inherit; cursor:pointer; appearance:none; -webkit-appearance:none;
+  }
+
+.nav-links a::after, .nav-links button:not(.nav-cta)::after{
+    content:""; position:absolute; left:0; right:0; bottom:-3px; height:2px;
+    background:var(--gold-bright); transform:scaleX(0); transform-origin:left;
+    transition:transform .25s ease;
+  }
+
+.nav-links a:hover, .nav-links button:not(.nav-cta):hover{ opacity:1; }
+
+.nav-links a:hover::after, .nav-links button:not(.nav-cta):hover::after{ transform:scaleX(1); }
+
+.nav-auth{ display:flex; align-items:center; }
+
+.nav-profile-chip{
+    display:flex; align-items:center; gap:8px;
+    background:rgba(251,244,230,0.12); border:1px solid var(--line-on-indigo);
+    padding:6px 14px 6px 6px; border-radius:999px;
+    color:var(--cream); cursor:pointer; font-family:inherit; font-size:0.86rem; font-weight:600;
+    transition:background .2s ease;
+  }
+
+.nav-profile-chip:hover{ background:rgba(251,244,230,0.2); }
+
+.nav-profile-chip__avatar{
+    width:26px; height:26px; border-radius:50%; flex:none;
+    background:var(--gold); color:var(--indigo-deep);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'DM Mono', monospace; font-weight:700; font-size:0.78rem;
+    object-fit:cover; /* PHASE 4: no effect on the text-span case; only applies once this class is used on an <img> */
+  }
+
+.nav-cta{
+    display:flex; align-items:center; gap:8px;
+    background:var(--gold); color:var(--indigo-deep);
+    padding:10px 18px; border-radius:999px;
+    font-weight:700; font-size:0.9rem;
+    transition:background .2s ease, transform .2s ease;
+    border:0; font-family:inherit; cursor:pointer; appearance:none; -webkit-appearance:none;
+    position:relative;
+  }
+
+.nav-cta:hover{ background:var(--gold-bright); transform:translateY(-1px); }
+
+.nav-toggle{
+    display:none; flex-direction:column; gap:5px; background:none; border:0; cursor:pointer; padding:8px;
+  }
+
+.nav-toggle span{ width:24px; height:2px; background:var(--cream); display:block; transition:transform .25s ease, opacity .25s ease; }
+
+.nav-toggle.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+
+.nav-toggle.open span:nth-child(2){ opacity:0; }
+
+.nav-toggle.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }

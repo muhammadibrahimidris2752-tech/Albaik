@@ -1,0 +1,141 @@
+/* The order modal's payment view (pay summary, bank-transfer card,
+   cash card) and tracking view (status timeline, "enjoy your meal"
+   card, start-a-new-order button). */
+
+/* tracking view */
+
+.order-confirm-banner{ text-align:center; padding:8px 0 22px; }
+
+.order-confirm-banner .em{ font-size:2.6rem; }
+
+.order-confirm-banner h3{ font-family:'Anton', sans-serif; font-size:1.5rem; margin-top:8px; }
+
+.order-confirm-banner p{ font-size:0.85rem; opacity:0.65; margin-top:6px; }
+
+.order-confirm-banner .pay-status{ opacity:0.85; font-weight:600; }
+
+/* payment view */
+
+.pay-summary{ background:var(--cream-dim); border-radius:14px; padding:16px 18px; margin-top:2px; }
+
+.pay-summary__row{ display:flex; justify-content:space-between; font-size:0.86rem; padding:5px 0; opacity:0.8; }
+
+.pay-summary__row.grand{ font-size:1.05rem; font-weight:800; opacity:1; padding-top:10px; margin-top:6px; border-top:1px solid var(--line-on-cream); }
+
+.pay-summary__row.grand .mono{ color:var(--pepper); }
+
+.transfer-card, .cash-card{ display:none; margin-top:22px; }
+
+.transfer-card.show, .cash-card.show{ display:block; animation:view-in .25s ease; }
+
+.transfer-card{ background:var(--indigo); color:var(--cream); border-radius:16px; padding:20px; }
+
+.transfer-note{ font-size:0.82rem; opacity:0.78; margin-bottom:10px; }
+
+.transfer-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:11px 0; border-bottom:1px solid var(--line-on-indigo); flex-wrap:wrap;
+  }
+
+.transfer-row:last-child{ border-bottom:0; }
+
+.transfer-row .label{ font-family:'DM Mono', monospace; font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase; opacity:0.6; }
+
+.transfer-row .value{ font-weight:700; font-size:0.95rem; text-align:right; }
+
+.transfer-row.amount .value{ color:var(--gold-bright); font-size:1.2rem; }
+
+.copy-btn{
+    background:rgba(251,244,230,0.12); border:1px solid var(--line-on-indigo); color:var(--cream);
+    padding:6px 13px; border-radius:999px; font-size:0.72rem; font-weight:700; cursor:pointer;
+    font-family:inherit; transition:background .2s ease;
+  }
+
+.copy-btn:hover{ background:rgba(251,244,230,0.22); }
+
+.copy-btn.copied{ background:var(--gold); color:var(--indigo-deep); border-color:transparent; }
+
+.cash-card{
+    background:var(--cream-dim); border:1px solid var(--line-on-cream); border-radius:16px;
+    padding:24px 20px; text-align:center;
+  }
+
+.cash-card__icon{ font-size:2rem; margin-bottom:8px; }
+
+.cash-card p{ font-size:0.92rem; opacity:0.85; }
+
+.cash-card strong{ color:var(--pepper); }
+
+.timeline{ margin:10px 0 26px; }
+
+.tl-stage{ display:flex; gap:16px; position:relative; padding-bottom:30px; }
+
+.tl-stage:last-child{ padding-bottom:0; }
+
+.tl-stage::before{
+    content:""; position:absolute; left:18px; top:38px; bottom:-4px; width:2px;
+    background:var(--line-on-cream);
+  }
+
+.tl-stage:last-child::before{ display:none; }
+
+.tl-stage.done::before{ background:var(--gold); }
+
+.tl-icon{
+    flex:none; width:38px; height:38px; border-radius:50%;
+    background:var(--cream-dim); border:2px solid var(--line-on-cream);
+    display:flex; align-items:center; justify-content:center; font-size:1.05rem;
+    transition:background .3s ease, border-color .3s ease, transform .3s ease;
+    z-index:1;
+  }
+
+.tl-stage.active .tl-icon{
+    border-color:var(--gold); background:var(--gold); transform:scale(1.08);
+    animation:tl-pulse 1.4s infinite;
+  }
+
+.tl-stage.done .tl-icon{ border-color:var(--gold); background:var(--indigo); }
+
+.tl-content{ padding-top:5px; }
+
+.tl-content .label{ font-weight:700; font-size:0.94rem; }
+
+.tl-stage.pending .tl-content .label{ opacity:0.45; }
+
+.tl-content .sub{ font-size:0.78rem; opacity:0.6; margin-top:2px; font-family:'DM Mono', monospace; }
+
+.tl-stage.active .tl-content .sub{ color:var(--pepper); opacity:1; }
+
+.enjoy-card{
+    display:none; text-align:center; background:var(--indigo);
+    color:var(--cream); border-radius:18px; padding:30px 20px; margin-top:8px;
+  }
+
+.enjoy-card.show{ display:block; animation:enjoy-in .5s ease; }
+
+.enjoy-card .em{ font-size:2.6rem; }
+
+.enjoy-card h3{ font-family:'Anton', sans-serif; color:var(--gold-bright); font-size:1.4rem; margin-top:6px; }
+
+.enjoy-card p{ font-size:0.88rem; opacity:0.82; margin-top:8px; }
+
+.new-order-btn{
+    display:none; width:100%; margin-top:18px; padding:15px; border:0; border-radius:999px;
+    background:var(--indigo); color:var(--cream); font-weight:700; cursor:pointer;
+    transition:background .2s ease; font-family:inherit;
+  }
+
+.new-order-btn.show{ display:block; }
+
+.new-order-btn:hover{ background:var(--indigo-deep); }
+
+/* PHASE 3: "Order Again" sits alongside "Start a new order" — see
+   index.html's #view-tracking. Kept visually secondary (outline, not
+   solid indigo) so starting fresh still reads as the primary action. */
+.tracking-actions{ display:flex; gap:10px; margin-top:18px; }
+
+.tracking-actions .new-order-btn{ margin-top:0; flex:1; }
+
+#orderAgainBtn{ background:var(--cream-dim); color:var(--charcoal); border:1.5px solid var(--line-on-cream); }
+
+#orderAgainBtn:hover{ background:var(--gold); border-color:var(--gold); }

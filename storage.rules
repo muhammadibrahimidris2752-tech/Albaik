@@ -1,0 +1,62 @@
+rules_version = '2';
+
+/* ============================================================
+   PHASE 4. First Storage ruleset this project has needed — Storage
+   itself was configured back in Phase 2 (see js/firebase.js's setup
+   comment, "Build → Storage → get started (for menu-item photos and
+   profile pictures)") but nothing wrote to it until now.
+
+   Syntax verified against Firebase's own docs as of this phase
+   (firebase.google.com/docs/storage/security/rules-conditions and
+   firebase.blog/posts/2022/09/announcing-cross-service-security-rules) —
+   the same "flag it, don't just assert it" honesty this project
+   applies to Firestore rules changes: this file itself has still
+   never been deployed against a real Storage bucket (no real Firebase
+   project exists in this environment — see js/firebase.js), so please
+   sanity-check it in the Firebase console's Rules Playground before
+   relying on it in production, same advice as every rules file this
+   project has ever shipped.
+
+   Two paths:
+     profile-pictures/{uid}/{fileName} — js/storage.js's
+       uploadProfilePicture(). Owner-write, public-read (an avatar is
+       already shown next to a customer's own public review — see
+       css/reviews.css's .verified-badge context — so there's no
+       additional exposure from also being able to view it directly by
+       URL).
+     menu-images/{itemId}/{fileName} — spec section 12: "Prepare the
+       storage architecture so the future Admin Dashboard can reuse it
+       for menu images." Staff/admin-write, public-read, exactly
+       mirroring firestore.rules' own isStaffOrAdmin() pattern via
+       firestore.get() (Storage rules' cross-service equivalent — see
+       the docs link above). Nothing in this phase's UI ever uploads
+       here; it's staged for Phase 6, the same way firestore.rules'
+       menuItems write rule already existed before Phase 3 built
+       anything that exercised it.
+   ================================================================ */
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    match /profile-pictures/{uid}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == uid
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /menu-images/{itemId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in ['staff', 'admin']
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in ['staff', 'admin'];
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

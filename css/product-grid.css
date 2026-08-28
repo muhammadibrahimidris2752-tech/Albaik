@@ -1,0 +1,202 @@
+/* PHASE 3. The menu-browsing surface inside the order modal's #view-menu:
+   sticky search+category toolbar and the product-card grid it filters —
+   see js/menu-render.js for what builds all of this. Reuses
+   .order-view/.order-modal__body from css/order-modal.css for the
+   surrounding chrome; everything below is new to this phase.
+
+   .stars/.stars-bg/.stars-fg themselves are css/base.css's original
+   rating-pill component (hero section) — its default .stars-bg color
+   is a dim CREAM, tuned for sitting on the dark indigo hero background.
+   Every rating shown in THIS file (and in the product modal / reviews)
+   sits on a white/cream card instead, where that same dim-cream would
+   be nearly invisible — so .tiny/.small/.on-light below all swap in a
+   dim CHARCOAL instead, rather than introducing a whole second stars
+   component. */
+
+/* ================= MENU TOOLBAR (search + category nav) ================= */
+.menu-toolbar{
+    position:sticky; top:0; z-index:5;
+    background:var(--cream);
+    padding-bottom:14px; margin-bottom:2px;
+  }
+
+.menu-search{
+    position:relative;
+    display:flex; align-items:center; gap:9px;
+    background:#fff; border:1px solid var(--line-on-cream); border-radius:14px;
+    padding:12px 14px; margin-bottom:12px;
+  }
+
+.menu-search__icon{ font-size:0.92rem; opacity:0.5; flex:none; }
+
+.menu-search input{
+    flex:1; min-width:0; border:0; outline:0; background:none;
+    font-family:'Work Sans', sans-serif; font-size:0.92rem; color:var(--charcoal);
+  }
+
+.menu-search input::placeholder{ color:rgba(36,27,20,0.42); }
+
+.search-suggestions{
+    position:absolute; left:0; right:0; top:calc(100% + 6px);
+    background:#fff; border:1px solid var(--line-on-cream); border-radius:14px;
+    box-shadow:var(--shadow); overflow-y:auto; max-height:280px; z-index:10;
+  }
+
+.search-suggestion{
+    width:100%; display:flex; align-items:center; gap:10px;
+    padding:10px 14px; border:0; border-bottom:1px solid var(--line-on-cream);
+    background:none; cursor:pointer; text-align:left; font-family:inherit;
+  }
+
+.search-suggestion:last-child{ border-bottom:0; }
+
+.search-suggestion:hover{ background:var(--cream-dim); }
+
+.search-suggestion__icon{ font-size:1.1rem; flex:none; }
+
+.search-suggestion__name{
+    flex:1; min-width:0; font-size:0.86rem; font-weight:600;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+.search-suggestion__cat{
+    flex:none; font-family:'DM Mono', monospace; font-size:0.64rem;
+    opacity:0.5; text-transform:uppercase; letter-spacing:0.05em;
+  }
+
+mark{ background:var(--gold-bright); color:var(--indigo-deep); border-radius:3px; padding:0 2px; }
+
+.category-nav{
+    display:flex; gap:8px; overflow-x:auto; padding-bottom:2px;
+    scrollbar-width:none;
+  }
+
+.category-nav::-webkit-scrollbar{ display:none; }
+
+.category-pill{
+    flex:none; background:var(--cream-dim); border:1px solid transparent;
+    color:var(--charcoal); padding:8px 16px; border-radius:999px;
+    font-size:0.82rem; font-weight:700; cursor:pointer; white-space:nowrap;
+    transition:background .2s ease, color .2s ease; font-family:inherit;
+  }
+
+.category-pill:hover{ background:var(--gold); }
+
+.category-pill.active{ background:var(--indigo); color:var(--cream); }
+
+/* ================= PRODUCT GRID ================= */
+.product-grid{
+    display:grid; grid-template-columns:1fr;
+    gap:16px; padding-bottom:26px;
+  }
+
+.product-grid__empty{
+    grid-column:1/-1; text-align:center; padding:50px 14px; opacity:0.6; font-size:0.9rem;
+  }
+
+.product-card{
+    display:flex; flex-direction:column;
+    background:#fff; border:1px solid var(--line-on-cream); border-radius:var(--radius);
+    overflow:hidden; cursor:pointer;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+
+.product-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+
+.product-card:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+
+.product-card__media{
+    position:relative; aspect-ratio:16/10; background:var(--cream-dim); flex:none; overflow:hidden;
+  }
+
+.product-card__media img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+.product-card__fallback{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:2.6rem; background:var(--cream-dim);
+  }
+
+.product-card__badges{
+    position:absolute; top:10px; left:10px; z-index:2;
+    display:flex; flex-direction:column; gap:5px; align-items:flex-start;
+  }
+
+.badge{
+    font-family:'DM Mono', monospace; font-size:0.6rem; letter-spacing:0.03em;
+    background:var(--gold); color:var(--indigo-deep); padding:3px 9px; border-radius:999px;
+    font-weight:700; box-shadow:0 2px 6px rgba(0,0,0,0.15);
+  }
+
+.product-card__fav{
+    position:absolute; top:8px; right:8px; z-index:2;
+    width:34px; height:34px; border-radius:50%; border:0;
+    background:rgba(251,244,230,0.92); color:var(--pepper);
+    font-size:1.15rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:transform .15s ease, background .2s ease; font-family:inherit;
+  }
+
+.product-card__fav:hover{ transform:scale(1.08); background:#fff; }
+
+.product-card__info{ padding:12px 14px 14px; display:flex; flex-direction:column; gap:4px; flex:1; }
+
+.product-card__name{
+    font-weight:700; font-size:0.94rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+.product-card__desc{
+    font-size:0.78rem; opacity:0.65; line-height:1.35; margin:0;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+
+.product-card__rating{ display:flex; align-items:center; gap:5px; margin-top:2px; }
+
+.rating-num{ font-family:'DM Mono', monospace; font-size:0.76rem; font-weight:600; }
+
+.rating-count{ font-family:'DM Mono', monospace; font-size:0.72rem; opacity:0.55; }
+
+.product-card__bottom{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; }
+
+.product-card__price{ font-family:'DM Mono', monospace; font-weight:700; font-size:0.94rem; color:var(--pepper); }
+
+.product-card__action .add-btn, .product-card__action .qty-stepper{ font-size:0.8rem; }
+
+.product-card__unavailable{
+    font-family:'DM Mono', monospace; font-size:0.7rem; text-transform:uppercase;
+    letter-spacing:0.05em; opacity:0.5;
+  }
+
+/* Rating-stars size/contrast variants — see this file's header comment. */
+.stars.tiny{ font-size:0.68rem; letter-spacing:1.5px; }
+.stars.small{ font-size:0.8rem; letter-spacing:1.5px; }
+.stars.tiny .stars-bg, .stars.small .stars-bg, .stars.on-light .stars-bg{ color:rgba(36,27,20,0.18); }
+
+/* ============================================================
+   PHASE 4 (spec section 2 + 14 — menu loading state). Same grid
+   classes as a real card (.product-card, .product-card__media,
+   .product-card__info) so proportions match exactly and nothing
+   reflows once real content replaces these — see
+   js/menu-render.js's buildSkeletonCard() and this project's
+   "avoid layout shifts" note in the Phase 4 brief.
+   ================================================================ */
+.product-card--skeleton{ cursor:default; }
+.product-card--skeleton:hover{ transform:none; box-shadow:none; }
+.product-card--skeleton .product-card__media{ background:var(--cream-dim); }
+
+.skeleton-line{
+    height:11px; border-radius:6px;
+    background:linear-gradient(90deg, var(--cream-dim) 25%, rgba(255,255,255,0.7) 37%, var(--cream-dim) 63%);
+    background-size:400% 100%; animation:shimmer 1.4s ease infinite;
+  }
+.skeleton-line--title{ width:60%; height:14px; }
+.skeleton-line--desc{ width:90%; }
+.skeleton-line--price{ width:35%; margin-top:10px; }
+
+/* PHASE 4 (spec section 2 — Firestore errors). Small, non-alarming
+   notice shown only when Firebase IS configured but the fetch itself
+   failed — see js/menu-data.js's didMenuLoadFail(). Sits as its own
+   element directly above #productGrid (see index.html), not inside
+   the grid itself, so no grid-item positioning is needed here. */
+.menu-load-notice{
+    text-align:center; padding:10px 14px; margin-bottom:14px;
+    background:var(--cream-dim); border-radius:12px; font-size:0.8rem; opacity:0.75;
+  }

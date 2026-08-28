@@ -1,0 +1,83 @@
+/* Hero section: badge row, headline, CTA buttons, the rotating seal
+   graphic, and the marquee strip beneath it. */
+
+/* ---------- hero ---------- */
+
+.hero{
+    background:
+      radial-gradient(circle, rgba(232,180,0,0.16) 1.5px, transparent 1.5px) 0 0/22px 22px,
+      linear-gradient(165deg, var(--indigo) 0%, var(--indigo-deep) 78%);
+    color:var(--cream);
+    padding:64px 0 88px;
+    overflow:hidden;
+  }
+
+.hero .wrap{ display:grid; grid-template-columns:1.25fr 0.9fr; gap:40px; align-items:center; }
+
+.hero-badge-row{ display:flex; align-items:center; gap:14px; margin-bottom:22px; }
+
+.open-pill{
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(251,244,230,0.08); border:1px solid var(--line-on-indigo);
+    padding:7px 14px 7px 10px; border-radius:999px; font-size:0.8rem; font-weight:600;
+  }
+
+.pulse-dot{
+    width:8px; height:8px; border-radius:50%; background:#6FCF97;
+    box-shadow:0 0 0 0 rgba(111,207,151,0.6);
+    animation:pulse 2s infinite;
+  }
+
+.rating-pill{ display:inline-flex; align-items:center; gap:7px; font-size:0.8rem; opacity:0.9; }
+
+.hero h1{
+    font-size:clamp(2.6rem,6.4vw,4.6rem);
+    line-height:0.98;
+    color:var(--cream);
+  }
+
+.hero h1 span{ color:var(--gold-bright); }
+
+.hero p.lede{
+    margin-top:22px; font-size:1.12rem; max-width:46ch; opacity:0.85;
+  }
+
+.hero-ctas{ display:flex; flex-wrap:wrap; gap:14px; margin-top:34px; }
+
+.hero-price{ margin-top:30px; font-size:0.85rem; opacity:0.75; }
+
+.hero-price .mono{ color:var(--gold-bright); }
+
+/* stamp / signature element */
+
+.stamp-wrap{ display:flex; justify-content:center; }
+
+.stamp{
+    width:min(280px,80vw); height:min(280px,80vw);
+    animation:stamp-in .9s cubic-bezier(.2,.9,.3,1.2) both, stamp-spin 38s linear infinite;
+    animation-delay:0.1s, 0.9s;
+  }
+
+.stamp-ring-outer{ fill:none; stroke:var(--gold-bright); stroke-width:2; }
+
+.stamp-ring-inner{ fill:none; stroke:rgba(255,228,2,0.45); stroke-width:1; stroke-dasharray:3 5; }
+
+.stamp-text{ font-family:'DM Mono', monospace; font-size:11.5px; letter-spacing:3px; fill:var(--cream); }
+
+.stamp-center{ font-family:'Anton', sans-serif; font-size:27px; fill:var(--gold-bright); letter-spacing:0.03em; }
+
+.stamp-sub{ font-family:'DM Mono', monospace; font-size:9px; fill:rgba(251,244,230,0.7); letter-spacing:2px; }
+
+/* ---------- marquee ---------- */
+
+.marquee-strip{ background:var(--gold); overflow:hidden; padding:14px 0; border-top:1px solid var(--indigo-deep); border-bottom:1px solid var(--indigo-deep); }
+
+.marquee-track{ display:flex; width:max-content; animation:marquee 32s linear infinite; }
+
+.marquee-track span{
+    display:flex; align-items:center; gap:14px;
+    font-family:'Anton', sans-serif; font-size:1.15rem; letter-spacing:0.04em;
+    color:var(--indigo-deep); padding:0 28px; white-space:nowrap; text-transform:uppercase;
+  }
+
+.marquee-track span::after{ content:"●"; font-size:0.5rem; color:var(--indigo-deep); margin-left:14px; opacity:0.5; }

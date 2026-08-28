@@ -1,0 +1,160 @@
+/* PHASE 3. Product Details modal — reuses .order-overlay/.order-modal/
+   .order-modal__header/.icon-btn from css/order-modal.css for its
+   chrome; everything below is specific to this modal's own content.
+   The embedded reviews section's own styling lives in css/reviews.css
+   instead (extended this phase), since reviews are a self-contained
+   feature with their own concern, not modal-specific layout.
+
+   POST-PHASE-3 DESKTOP REDESIGN. Added four new elements — heading,
+   feature-pills row, meta-info grid, trust row — styled below but
+   `display:none` by default: the mobile/tablet product modal is
+   intentionally unchanged (it was already working well), so these
+   only switch on at the same `min-width:1024px` breakpoint as the
+   rest of the desktop layout (see css/responsive.css's
+   #productOverlay-scoped block). js/product-modal.js always populates
+   them regardless of viewport — cheap, and means crossing the
+   breakpoint needs no re-render. */
+
+.product-modal{ max-width:520px; }
+
+/* Full-bleed hero: negative margin exactly cancels .order-modal__body's
+   own 20px/22px padding, so the image spans edge-to-edge at the top of
+   the modal without introducing horizontal scroll (the resulting
+   rendered width matches the body's padding-box width exactly — see
+   PROJECT_CONTINUATION_SUMMARY.md if this ever needs re-deriving). Only
+   correct as the very first child of #productModalBody. Desktop cancels
+   this trick entirely (see responsive.css) in favour of a self-
+   contained rounded image card instead. */
+.product-modal__hero{
+    position:relative; margin:-20px -22px 16px; aspect-ratio:4/3;
+    background:var(--cream-dim); overflow:hidden;
+  }
+
+.product-modal__hero img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+.product-modal__fallback{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:4rem; background:var(--cream-dim);
+  }
+
+.product-modal__badges{
+    position:absolute; top:14px; left:14px; z-index:2;
+    display:flex; flex-direction:column; gap:6px; align-items:flex-start;
+  }
+
+.product-modal__fav{
+    position:absolute; top:12px; right:12px; z-index:2;
+    width:42px; height:42px; border-radius:50%; border:0;
+    background:rgba(251,244,230,0.92); color:var(--pepper);
+    font-size:1.4rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:transform .15s ease, background .2s ease; font-family:inherit;
+  }
+
+.product-modal__fav:hover{ transform:scale(1.08); background:#fff; }
+
+.product-modal__fav.is-favorite{ color:var(--pepper); }
+
+/* Desktop-only large in-body heading — the header bar above already
+   shows the name too (small, alongside the branch name), same
+   deliberate double-treatment the reference layout uses: a persistent
+   small context label up top, a real content heading down here. */
+.product-modal__heading{ display:none; font-size:1.7rem; color:var(--charcoal); margin:0 0 4px; }
+
+.product-modal__rating{ display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+
+/* Desktop-only feature pills — favorite (interactive, mirrors the
+   overlay heart on the image) plus whichever Signature/Best Seller/
+   Popular/New flags are true (same data renderBadges() already puts
+   on the image — see js/product-modal.js). */
+.product-modal__pills{ display:none; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+
+.feature-pill{
+    background:var(--cream-dim); border:1px solid var(--line-on-cream); color:var(--charcoal);
+    padding:7px 14px; border-radius:999px; font-size:0.8rem; font-weight:700;
+    white-space:nowrap;
+  }
+
+.feature-pill--fav{ cursor:pointer; font-family:inherit; transition:background .2s ease, border-color .2s ease, color .2s ease; }
+
+.feature-pill--fav.is-favorite{ background:rgba(222,65,58,0.1); border-color:var(--pepper); color:var(--pepper); }
+
+/* white-space:pre-line: today's menu descriptions are one sentence
+   each (see data/menu.sample.js), so this has no visible effect yet —
+   it's here so a future multi-paragraph description (blank-line-
+   separated) renders as real paragraph breaks. product-modal.js sets
+   this via textContent, not innerHTML, so a CSS white-space rule is
+   the only lever available for that — no markup change either way. */
+.product-modal__desc{ font-size:0.92rem; line-height:1.5; opacity:0.75; margin:0 0 16px; white-space:pre-line; }
+
+/* Desktop-only meta-info grid — see js/product-modal.js's
+   renderMetaGrid() for exactly which cells are real data (always
+   shown) vs. conditional on fields that don't exist in the schema yet
+   (never shown today, ready the moment they do). */
+.product-modal__meta-grid{
+    display:none; grid-template-columns:1fr 1fr; gap:16px 20px;
+    padding:16px 0; margin-bottom:4px;
+    border-top:1px dashed var(--line-on-cream); border-bottom:1px dashed var(--line-on-cream);
+  }
+
+.meta-cell{ display:flex; align-items:flex-start; gap:10px; }
+
+.meta-cell__icon{ font-size:1.05rem; flex:none; opacity:0.7; margin-top:1px; }
+
+.meta-cell__text{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+
+.meta-cell__label{
+    font-family:'DM Mono', monospace; font-size:0.64rem; text-transform:uppercase;
+    letter-spacing:0.06em; opacity:0.5;
+  }
+
+.meta-cell__value{ font-size:0.85rem; font-weight:700; color:var(--charcoal); }
+
+.product-modal__price-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding-top:14px; padding-bottom:6px; border-top:1px dashed var(--line-on-cream);
+  }
+
+.product-modal__price{ font-family:'DM Mono', monospace; font-weight:800; font-size:1.3rem; color:var(--pepper); }
+
+/* Desktop-only static trust row — universal claims about the
+   restaurant (halal, freshness, packaging), not per-item data, same
+   as the reference layout's own bottom trust strip. Deliberately
+   plain static markup in index.html, no JS involved: it's identical
+   for every product, so there's nothing to render dynamically. */
+.product-modal__trust-row{ display:none; gap:18px; flex-wrap:wrap; padding-top:16px; }
+
+.product-modal__trust-row span{
+    font-size:0.78rem; font-weight:600; opacity:0.7;
+    display:inline-flex; align-items:center; gap:5px;
+  }
+
+.product-modal__related{ margin:24px 0 6px; }
+
+.product-modal__related h4{
+    font-family:'DM Mono', monospace; font-size:0.72rem; letter-spacing:0.1em;
+    text-transform:uppercase; opacity:0.55; margin:0 0 10px;
+  }
+
+.product-related__row{ display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; }
+
+.product-related__card{
+    flex:none; width:120px; text-align:left; background:var(--cream-dim);
+    border:1px solid var(--line-on-cream); border-radius:14px; overflow:hidden;
+    cursor:pointer; font-family:inherit; transition:transform .2s ease;
+  }
+
+.product-related__card:hover{ transform:translateY(-2px); }
+
+.product-related__card img{ width:100%; height:80px; object-fit:cover; display:block; }
+
+.product-related__fallback{
+    width:100%; height:80px; display:flex; align-items:center; justify-content:center;
+    font-size:1.8rem; background:var(--cream-dim);
+  }
+
+.product-related__name{
+    font-size:0.76rem; font-weight:700; padding:8px 10px 0; margin:0;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+.product-related__price{ font-family:'DM Mono', monospace; font-size:0.72rem; color:var(--pepper); padding:2px 10px 10px; }

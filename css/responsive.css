@@ -1,0 +1,256 @@
+/* Every @media block in the project, in one place, loaded LAST.
+   Order matters: a media-query rule needs to load after the base rule
+   it overrides to win the cascade at equal specificity (see e.g.
+   .nav-links' base flex layout vs. its @media(max-width:860px)
+   override) — exactly the same relationship these rules had at their
+   original position in the single-file build, just centralized. */
+
+@media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+  }
+
+@media (max-width:860px){
+    .nav-links{
+      position:absolute; top:72px; left:0; right:0;
+      background:var(--indigo); flex-direction:column; align-items:flex-start;
+      padding:18px 24px 26px; gap:18px; border-bottom:1px solid var(--line-on-indigo);
+      transform:translateY(-12px); opacity:0; pointer-events:none;
+      transition:opacity .2s ease, transform .2s ease;
+    }
+    .nav-links.open{ transform:translateY(0); opacity:1; pointer-events:auto; }
+    .nav-cta{ margin-top:4px; }
+    .nav-toggle{ display:flex; }
+  }
+
+@media (max-width:980px){
+    .hero .wrap{ grid-template-columns:1fr; }
+    .stamp-wrap{ order:-1; margin-bottom:8px; }
+    .stamp{ width:200px; height:200px; }
+    .about .wrap{ grid-template-columns:1fr; }
+    .about-visual{ max-width:340px; margin:0 auto; }
+    .menu-grid{ grid-template-columns:1fr; }
+    .review-grid{ grid-template-columns:1fr; }
+    .visit .wrap{ grid-template-columns:1fr; }
+  }
+
+@media (max-width:640px){
+    .about-stats{ grid-template-columns:1fr 1fr; }
+    .mobile-bar{ display:flex; }
+    body{ padding-bottom:58px; }
+    .hero{ padding:44px 0 64px; }
+    .review-summary{ flex-direction:column; align-items:flex-start; gap:6px; }
+  }
+
+@media (min-width:640px){
+    .order-overlay{ align-items:center; }
+    .order-modal{ border-radius:24px; max-height:88vh; max-width:640px; }
+    /* PHASE 3 "tablet: responsive two-column layout" (spec section 10) —
+       the modal itself already widens to 640px on this same breakpoint
+       (just above), giving each card room to breathe at 2-up. */
+    .product-grid{ grid-template-columns:repeat(2,1fr); }
+  }
+
+/* ============================================================
+   PHASE 3 DESKTOP (spec section 10): "Do NOT simply stretch the
+   mobile layout" — menu and cart render side-by-side instead of one-
+   at-a-time, with the cart as a persistent sidebar, while payment/
+   tracking stay single-column focused steps. This is still the SAME
+   markup and the SAME showView()/render() JS as mobile — see
+   js/ui.js's showView() for the one small addition that made this
+   possible: an `order-focused` class on #orderOverlay, toggled true
+   only for the payment/tracking steps. Below, that class is the only
+   thing distinguishing "browsing" (menu+cart together) from "focused"
+   (one view, full width) layout — nothing here duplicates JS logic,
+   it just reads the one flag JS already tracks.
+
+   #continueBtn's override uses !important specifically because
+   js/ui.js's showView() sets its display via inline style (a per-call
+   decision that predates this breakpoint and still needs to keep
+   working below 1024px) — an author-stylesheet !important is the one
+   thing that legitimately outranks an inline style, which is exactly
+   the override needed here: "always show Continue to Payment while
+   browsing, regardless of which of the two now-simultaneous views JS
+   thinks is active." See PROJECT_CONTINUATION_SUMMARY.md if this
+   layout ever needs re-deriving from scratch — the reasoning for each
+   rule below is non-obvious enough to be worth re-reading first.
+   ================================================================ */
+@media (min-width:1024px){
+    .order-modal{ max-width:1180px; width:94vw; height:86vh; max-height:820px; border-radius:26px; }
+
+    .order-modal__body{ display:grid; grid-template-columns:1fr 380px; padding:0; overflow:hidden; }
+
+    #view-menu, #view-cart, #view-payment, #view-tracking{
+      height:100%; overflow-y:auto; padding:20px 22px; animation:none;
+    }
+
+    #view-menu, #view-cart{ display:block !important; }
+    #view-cart{ border-left:1px solid var(--line-on-cream); background:var(--cream-dim); }
+    #view-cart .back-link{ display:none; }
+
+    #orderOverlay.order-focused #view-menu,
+    #orderOverlay.order-focused #view-cart{ display:none !important; }
+    #orderOverlay.order-focused #view-payment.active,
+    #orderOverlay.order-focused #view-tracking.active{ grid-column:1 / -1; }
+
+    #orderOverlay:not(.order-focused) #viewCartBtn{ display:none !important; }
+    #orderOverlay:not(.order-focused) #continueBtn{ display:flex !important; }
+
+    .product-grid{ grid-template-columns:repeat(3,1fr); }
+
+    /* ---- Product Details modal (desktop polish pass, post-Phase-3) ----
+       #productOverlay is a SEPARATE overlay from #orderOverlay above —
+       js/product-modal.js's modal reuses .order-modal/.order-modal__body
+       purely for CHROME (see css/product-modal.css's header comment), which
+       is exactly why the two rules at the top of this block (bare
+       `.order-modal` / `.order-modal__body`) were ALSO landing here and
+       stretching this modal like a scaled-up mobile layout — a max-width
+       modal with no internal column structure. Every selector below is
+       deliberately scoped under #productOverlay (an ID ancestor), so it
+       wins on specificity over those two rules for every property it
+       touches, WITHOUT editing them — the menu/cart sidebar layout above
+       is unaffected, on purpose. See PROJECT_CONTINUATION_SUMMARY.md for
+       the full before/after reasoning if this ever needs revisiting. */
+    #productOverlay .product-modal{
+      max-width:920px; width:90vw; height:auto; max-height:88vh; border-radius:26px;
+    }
+
+    /* Grid: row 1 is [image | info] side by side; related items and
+       reviews (no explicit grid-row — they auto-place into rows 2 and 3)
+       each span both columns via grid-column below. Deliberately no
+       align-items override — the default `stretch` is what lets
+       .product-modal__info match the image's height, which in turn is
+       what makes that column's own margin-top:auto price-row trick
+       (further down) push the Add to Cart row toward the bottom instead
+       of sitting immediately under the description. */
+    #productOverlay #productModalBody{
+      display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      column-gap:44px; row-gap:36px;
+      padding:36px 40px; overflow-y:auto; min-height:0;
+    }
+
+    /* Image: no longer full-bleed (that was margin:-20px -22px cancelling
+       the mobile body's own padding — see product-modal.css) — at this
+       width it's its own rounded card instead, per spec ("Maximum height
+       around 400–450px", "Rounded corners"). object-fit:cover on the
+       <img> itself is unchanged/untouched (css/product-modal.css), so
+       image quality/cropping behaviour carries over as-is. 450px (top of
+       the requested 400–450 range) rather than the previous polish
+       pass's 430px — the redesign below added real content to the info
+       column (heading, pills, meta grid, trust row), so it needed the
+       extra headroom to comfortably match. */
+    #productOverlay .product-modal__hero{
+      grid-column:1; grid-row:1;
+      margin:0; aspect-ratio:auto; height:450px;
+      border-radius:var(--radius);
+    }
+
+    /* Info column: name/rating/badges/favorite are already always-visible
+       (name+close are in the header, which never scrolls; badges/favorite
+       overlay the image in the same always-visible row) — this column
+       covers the rest of the "visible without scrolling" list (rating,
+       review count, description, price, quantity selector, Add to Cart).
+
+       POST-PHASE-3 REDESIGN: this column now also shows a large heading,
+       a feature-pills row, and a meta-info grid — all `display:none` by
+       default (css/product-modal.css) and switched on below, the same
+       "hidden on mobile, shown here" pattern as everything else in this
+       block. gap tightened from the previous polish pass's 16px to 14px
+       to help the extra content sit comfortably within the image's
+       height without feeling cramped. */
+    #productOverlay .product-modal__info{
+      grid-column:2; grid-row:1;
+      display:flex; flex-direction:column; gap:14px; padding-top:2px;
+    }
+
+    #productOverlay .product-modal__heading{ display:block; }
+    #productOverlay .product-modal__pills{ display:flex; }
+    #productOverlay .product-modal__desc{ font-size:0.98rem; }
+    #productOverlay .product-modal__meta-grid{ display:grid; }
+
+    /* Pushed to the bottom of the (now image-height-tall) info column via
+       flexbox's margin-top:auto — keeps Add to Cart grounded at a
+       consistent position instead of floating right under a short
+       description, and guarantees it's part of the always-visible row
+       rather than needing the info column to scroll. */
+    #productOverlay .product-modal__price-row{ margin-top:auto; padding-top:18px; }
+    #productOverlay .product-modal__price{ font-size:1.55rem; }
+    #productOverlay .product-modal__price-row .add-btn{ padding:13px 28px; font-size:0.92rem; }
+    #productOverlay .product-modal__price-row .qty-stepper button{ width:38px; height:38px; }
+    #productOverlay .product-modal__price-row .qty-stepper .qty-num{ font-size:0.95rem; min-width:30px; }
+
+    #productOverlay .product-modal__trust-row{ display:flex; }
+
+    /* Related products: row 2, spanning both columns. The horizontal-
+       scrolling row itself (css/product-modal.css's .product-related__row)
+       is unchanged — it was already a flex row, not stacked; it just
+       needed its CONTAINER to actually get full width, which the grid
+       leak above was preventing. */
+    #productOverlay .product-modal__related{ grid-column:1 / -1; margin:12px 0 0; }
+    #productOverlay .product-related__row{ gap:14px; }
+    #productOverlay .product-related__card{ width:150px; }
+    #productOverlay .product-related__card img,
+    #productOverlay .product-related__fallback{ height:100px; }
+
+    /* Reviews: row 3, spanning both columns (full modal width, per spec).
+       js/reviews-ui.js's own structure — heading, write/edit form, review
+       list with replies/helpful/verified — is completely unchanged; only
+       the text-column widths below are new, so a full-width section
+       doesn't force uncomfortably long review-text line lengths. */
+    #productOverlay .product-modal__reviews{ grid-column:1 / -1; margin-top:6px; }
+    #productOverlay .review-form,
+    #productOverlay .review-signin-prompt{ max-width:640px; }
+    #productOverlay .review-item{ max-width:760px; }
+
+    /* ============================================================
+       AUTH/ACCOUNT MODAL — modal interaction bug fix. Same leaked-
+       cascade class as the #productOverlay block above: `.order-modal`/
+       `.order-modal__body` are shared CHROME classes (see
+       css/auth-modal.css's header comment), so the menu+cart-only
+       rules at the very top of this breakpoint ALSO land on
+       #authOverlay — turning its single-column body into a
+       `1fr 380px` grid with `overflow:hidden`. Unlike the order
+       modal's own #view-menu/#view-cart/#view-payment/#view-tracking,
+       none of THIS modal's `.order-view` children (#authView-signin/
+       -signup/-forgot/-account/-orders) were ever added to the
+       compensating `overflow-y:auto` rule near the top of this block —
+       so at >=1024px the account view's content (avatar, info, edit
+       form, favorites, saved addresses + inline add-address form,
+       reviews, order-history link, change-password form, sign out —
+       reliably well over one screen) hits `overflow:hidden` with
+       nowhere for the scroll to go.
+
+       That dead end isn't touch-specific — touch drag, mouse wheel,
+       and trackpad scrolling all end at the same `overflow:hidden`,
+       confirmed with a real (headless) Chromium run at 1280x800 both
+       with and without touch before this fix: scrollTop stayed 0
+       after a simulated touch drag AND after a wheel event either
+       way. A touchscreen Chromebook just happens to be the device
+       that surfaces it day-to-day, since — unlike a phone — it's a
+       real Chrome window sitting at a >=1024px CSS width, and touch
+       dragging is how you'd naturally try to scroll it. `.auth-modal`
+       was already sitting on the modal root for exactly this kind of
+       scoped override (index.html) but had never actually been used
+       until now.
+
+       Fix, same technique/verification standard as #productOverlay:
+       scope under the `#authOverlay` id so these rules win on
+       specificity over the leaked bare `.order-modal`/
+       `.order-modal__body` rules WITHOUT editing either — restores
+       this modal to the exact same single-column, natively-scrollable
+       body it already has at every OTHER breakpoint (values match the
+       min-width:640px card exactly), rather than forcing it into a
+       two-pane layout that never suited a one-view-at-a-time sign-in/
+       account form. Nothing here is a new scroll mechanism — native
+       `overflow-y:auto` on a bounded-height flex column is the exact
+       thing that already makes mobile/tablet scroll correctly by
+       touch, wheel, AND trackpad with zero JS involved; this just
+       stops switching it off at this one breakpoint. The order
+       modal's own desktop 2-column layout (rules above) is untouched,
+       so menu+cart browsing keeps behaving exactly as it does today. */
+    #authOverlay .order-modal{
+      width:100%; max-width:640px; height:auto; max-height:88vh;
+    }
+    #authOverlay .order-modal__body{
+      display:block; grid-template-columns:none; padding:20px 22px 0; overflow-y:auto;
+    }
+  }

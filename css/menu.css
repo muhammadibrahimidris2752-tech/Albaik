@@ -1,0 +1,40 @@
+/* "What's cooking" menu-highlights section on the homepage (NOT the
+   order modal's live menu list — that's order-modal.css). */
+
+/* ---------- menu ---------- */
+
+.menu{ padding:96px 0; background:var(--indigo); color:var(--cream); }
+
+.menu .eyebrow, .menu .section-head p{ color:inherit; }
+
+.menu-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:22px; }
+
+.menu-card{
+    background:rgba(251,244,230,0.05); border:1px solid var(--line-on-indigo);
+    border-radius:var(--radius); padding:28px; position:relative; overflow:hidden;
+    transition:transform .25s ease, border-color .25s ease, background .25s ease;
+  }
+
+.menu-card:hover{ transform:translateY(-5px); border-color:var(--gold-bright); background:rgba(251,244,230,0.08); }
+
+.menu-card .tag{
+    display:inline-block; font-family:'DM Mono', monospace; font-size:0.7rem; letter-spacing:0.08em;
+    color:var(--indigo-deep); background:var(--gold-bright); padding:4px 10px; border-radius:999px; margin-bottom:16px;
+  }
+
+.menu-card h3{ font-family:'Anton', sans-serif; font-size:1.4rem; text-transform:uppercase; letter-spacing:0.01em; line-height:1.15; }
+
+.menu-card p{ margin-top:10px; font-size:0.95rem; opacity:0.78; }
+
+.menu-card__icon{
+    width:60px; height:60px; border-radius:16px;
+    background:rgba(251,244,230,0.08); border:1px solid var(--line-on-indigo);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:18px;
+  }
+
+.menu-card__icon svg{ width:36px; height:36px; }
+
+.menu-note{ margin-top:30px; font-size:0.88rem; opacity:0.65; }
+
+.menu-cta{ margin-top:34px; }

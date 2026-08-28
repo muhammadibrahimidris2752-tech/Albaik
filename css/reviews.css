@@ -1,0 +1,211 @@
+/* Customer reviews section. */
+
+/* ---------- reviews ---------- */
+
+.reviews{ padding:96px 0; background:var(--cream); }
+
+.review-summary{ display:flex; align-items:center; gap:18px; margin-bottom:36px; flex-wrap:wrap; }
+
+.review-summary .score{ font-family:'Anton', sans-serif; font-size:3rem; color:var(--pepper); line-height:1; }
+
+.review-summary .score-meta{ font-size:0.85rem; opacity:0.7; }
+
+.review-summary .stars-bg{ color:rgba(36,27,20,0.18); }
+
+.review-summary .stars-fg{ color:var(--pepper); }
+
+.review-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+
+/* PHASE 4 (Remove fake testimonials). Shown by js/site-reviews.js in
+   place of the review-card grid when Firestore has no reviews yet —
+   spans the full grid width rather than sitting in a lone card, so it
+   reads as a section-level message, not a fourth review. */
+.review-grid__empty{
+  grid-column:1 / -1; text-align:center; padding:40px 20px;
+  border:1px dashed var(--line-on-cream); border-radius:var(--radius);
+  opacity:0.7; font-size:0.95rem;
+}
+
+.review-card{
+    background:#fff; border:1px solid var(--line-on-cream); border-radius:var(--radius);
+    padding:26px; box-shadow:0 8px 22px rgba(36,27,20,0.05);
+  }
+
+.review-card .stars-row{ margin-bottom:14px; }
+
+.review-card .stars-row .stars-bg{ color:rgba(36,27,20,0.15); }
+
+.review-card .stars-row .stars-fg{ color:var(--pepper); }
+
+.review-card p.quote{ font-size:0.98rem; opacity:0.88; }
+
+.review-card .who{ margin-top:18px; display:flex; align-items:center; gap:12px; }
+
+.avatar{
+    width:38px; height:38px; border-radius:50%; background:var(--indigo);
+    color:var(--gold-bright); display:flex; align-items:center; justify-content:center;
+    font-family:'Anton', sans-serif; font-size:0.95rem;
+  }
+
+.who .name{ font-weight:700; font-size:0.9rem; }
+
+.who .meta{ font-size:0.76rem; opacity:0.6; }
+
+/* ================= PHASE 3: LIVE REVIEW SYSTEM =================
+   Renders inside the Product Details modal (see css/product-modal.css
+   and js/reviews-ui.js) — the interactive counterpart to the static
+   homepage teaser above. Kept in this same file as one "reviews"
+   concern rather than a new one. Rating stars here reuse the shared
+   .stars.small class from css/product-grid.css (darker empty-star
+   color for a light background), the same fix this file's own
+   .review-summary/.review-card rules above already needed
+   independently before this phase. */
+
+.reviews-loading{ text-align:center; padding:30px 0; opacity:0.55; font-size:0.88rem; }
+
+.reviews-heading{ font-size:1rem; margin:26px 0 14px; }
+
+.review-form-wrap{ margin-bottom:22px; }
+
+.review-form{
+    background:var(--cream-dim); border-radius:16px; padding:18px;
+    display:flex; flex-direction:column; gap:10px;
+  }
+
+.review-form__label{ font-weight:700; font-size:0.9rem; }
+
+.review-form__text{
+    width:100%; min-height:80px; resize:vertical; padding:12px 13px;
+    border-radius:12px; border:1px solid var(--line-on-cream); background:#fff;
+    font-family:'Work Sans', sans-serif; font-size:0.88rem; color:var(--charcoal);
+  }
+
+.review-form__text:focus{ outline:2px solid var(--gold); border-color:transparent; }
+
+.review-form__actions{ display:flex; align-items:center; gap:10px; }
+
+.review-form__actions .place-order-btn{ width:auto; flex:1; padding:12px 20px; font-size:0.88rem; }
+
+.review-form__delete{
+    flex:none; background:none; border:1px solid var(--pepper); color:var(--pepper);
+    padding:11px 16px; border-radius:999px; font-weight:700; font-size:0.82rem;
+    cursor:pointer; font-family:inherit; transition:background .2s ease;
+  }
+
+.review-form__delete:hover{ background:rgba(222,65,58,0.1); }
+
+.review-signin-prompt{
+    width:100%; background:var(--cream-dim); border:1px dashed var(--line-on-cream);
+    color:var(--charcoal); padding:16px; border-radius:14px; font-weight:700; font-size:0.88rem;
+    cursor:pointer; font-family:inherit; transition:background .2s ease;
+  }
+
+.review-signin-prompt:hover{ background:var(--gold); }
+
+.star-input{ display:flex; gap:4px; }
+
+.star-input__star{
+    background:none; border:0; font-size:1.5rem; cursor:pointer; padding:2px;
+    color:rgba(36,27,20,0.22); transition:color .15s ease; font-family:inherit; line-height:1;
+  }
+
+.star-input__star.filled{ color:var(--gold); }
+
+.field-error{ color:var(--pepper); font-size:0.8rem; }
+
+.review-list{ display:flex; flex-direction:column; gap:18px; }
+
+.review-empty{ text-align:center; opacity:0.55; font-size:0.88rem; padding:20px 0; }
+
+.review-item{ border-bottom:1px solid var(--line-on-cream); padding-bottom:18px; }
+
+.review-item:last-child{ border-bottom:0; }
+
+.review-item__head{ display:flex; align-items:flex-start; gap:12px; margin-bottom:8px; }
+
+.review-item__avatar{
+    width:36px; height:36px; border-radius:50%; background:var(--indigo);
+    color:var(--gold-bright); display:flex; align-items:center; justify-content:center;
+    font-family:'Anton', sans-serif; font-size:0.9rem; flex:none;
+  }
+
+.review-item__meta{ flex:1; min-width:0; }
+
+.review-item__name{ font-weight:700; font-size:0.88rem; }
+
+.verified-badge, .mine-badge{
+    font-family:'DM Mono', monospace; font-size:0.6rem; letter-spacing:0.03em;
+    padding:2px 7px; border-radius:999px; vertical-align:middle; margin-left:4px; white-space:nowrap;
+  }
+
+.verified-badge{ background:var(--gold); color:var(--indigo-deep); }
+
+.mine-badge{ background:var(--cream-dim); border:1px solid var(--line-on-cream); opacity:0.7; }
+
+.review-item__sub{ display:flex; align-items:center; gap:8px; margin-top:2px; }
+
+.review-item__time{ font-family:'DM Mono', monospace; font-size:0.7rem; opacity:0.5; }
+
+.review-item__text{ font-size:0.88rem; line-height:1.5; margin:0 0 10px; opacity:0.85; }
+
+.review-item__actions{ display:flex; align-items:center; gap:14px; }
+
+.review-helpful-btn, .review-reply-btn{
+    background:none; border:0; padding:4px 0; font-size:0.8rem; font-weight:700;
+    color:var(--charcoal); opacity:0.6; cursor:pointer; font-family:inherit;
+    transition:opacity .2s ease, color .2s ease;
+  }
+
+.review-helpful-btn:hover, .review-reply-btn:hover{ opacity:1; }
+
+.review-helpful-btn.active{ color:var(--pepper); opacity:1; }
+
+.review-helpful-count{ font-size:0.8rem; opacity:0.55; }
+
+.review-item__replies{
+    margin-top:12px; padding-left:20px; border-left:2px solid var(--line-on-cream);
+    display:flex; flex-direction:column; gap:10px;
+  }
+
+.review-reply{ font-size:0.82rem; }
+
+.review-reply__name{ font-weight:700; margin-right:6px; }
+
+.review-reply__text{ opacity:0.8; }
+
+.review-reply__time{ font-family:'DM Mono', monospace; font-size:0.68rem; opacity:0.45; margin-left:6px; }
+
+.review-reply-form{ display:flex; gap:8px; margin-top:4px; }
+
+.review-reply-form input{
+    flex:1; min-width:0; padding:9px 12px; border-radius:999px;
+    border:1px solid var(--line-on-cream); font-family:'Work Sans', sans-serif; font-size:0.82rem;
+  }
+
+.review-reply-form input:focus{ outline:2px solid var(--gold); border-color:transparent; }
+
+.review-reply-form button{
+    flex:none; background:var(--indigo); color:var(--cream); border:0;
+    padding:9px 16px; border-radius:999px; font-weight:700; font-size:0.8rem;
+    cursor:pointer; font-family:inherit;
+  }
+
+/* PRIORITY 10. Restaurant (staff) replies render distinctly from other
+   customers' replies — a tinted "Restaurant" label so customers can tell
+   the owner/staff responded vs. another customer. */
+.review-reply--restaurant{ background:var(--cream-dim); border:1px solid var(--line-on-cream); border-radius:10px; padding:8px 12px; }
+
+.review-reply--restaurant .review-reply__name{ color:var(--indigo); text-transform:uppercase; font-size:0.7rem; letter-spacing:0.04em; }
+
+/* PRIORITY 10. Restaurant reply block on the homepage testimonial cards. */
+.review-card__reply{
+    margin-top:12px; padding:10px 12px; background:var(--cream-dim);
+    border-left:3px solid var(--gold); border-radius:0 10px 10px 0; font-size:0.85rem;
+  }
+
+.review-card__reply-name{
+    font-family:'DM Mono', monospace; font-size:0.66rem; text-transform:uppercase;
+    letter-spacing:0.05em; color:var(--indigo); font-weight:700; margin-bottom:4px;
+  }
+
+.review-card__reply p{ margin:0; opacity:0.85; }

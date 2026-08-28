@@ -1,0 +1,287 @@
+/* The auth modal's own content: form fields, error/success banners, the
+   Google button, the sign-up/sign-in switch links, and the account view.
+   Modal chrome itself (overlay, header, footer, .order-view switching)
+   is shared with the order modal — see css/order-modal.css — this file
+   only adds what's specific to auth. Loads right after order-modal.css,
+   whose .place-order-btn this file's .auth-signout-btn overrides. */
+
+.auth-checkout-banner{
+    background:var(--cream-dim); border:1px solid var(--line-on-cream); border-radius:14px;
+    padding:14px 16px; font-size:0.86rem; line-height:1.45; margin-bottom:20px; color:var(--charcoal);
+  }
+
+.auth-error{
+    background:rgba(222,65,58,0.1); border:1px solid rgba(222,65,58,0.35); color:var(--pepper);
+    border-radius:12px; padding:12px 14px; font-size:0.84rem; margin-bottom:16px;
+  }
+
+.auth-success{
+    background:rgba(232,180,0,0.14); border:1px solid rgba(232,180,0,0.4); color:var(--indigo-deep);
+    border-radius:12px; padding:12px 14px; font-size:0.84rem; margin-bottom:16px;
+  }
+
+.auth-field{ margin-bottom:16px; }
+
+.auth-field label{
+    display:block; font-family:'DM Mono', monospace; font-size:0.72rem; letter-spacing:0.08em;
+    text-transform:uppercase; opacity:0.6; margin-bottom:8px;
+  }
+
+.auth-field input{
+    width:100%; padding:13px 14px; border-radius:12px;
+    border:1px solid var(--line-on-cream); background:#fff; font-family:'Work Sans', sans-serif;
+    font-size:0.92rem; color:var(--charcoal);
+  }
+
+.auth-field input:focus{ outline:2px solid var(--gold); border-color:transparent; }
+
+.auth-field.error input{ border-color:var(--pepper); }
+
+.auth-field__hint{ font-size:0.76rem; opacity:0.6; margin:-8px 0 16px; }
+
+.auth-row{ display:flex; gap:12px; }
+
+.auth-row .auth-field{ flex:1; min-width:0; }
+
+.auth-checkbox{ display:flex; align-items:center; gap:9px; font-size:0.86rem; margin-bottom:18px; cursor:pointer; }
+
+.auth-checkbox input{ width:17px; height:17px; accent-color:var(--indigo); cursor:pointer; }
+
+.link-btn{
+    display:block; width:100%; text-align:right; background:none; border:0;
+    color:var(--pepper); font-size:0.82rem; font-family:inherit; cursor:pointer; padding:0; margin:-8px 0 18px;
+  }
+
+.link-btn:hover{ text-decoration:underline; }
+
+.auth-divider{ display:flex; align-items:center; gap:12px; margin:20px 0; color:rgba(36,27,20,0.45); font-size:0.78rem; }
+
+.auth-divider::before, .auth-divider::after{ content:""; flex:1; height:1px; background:var(--line-on-cream); }
+
+.google-btn{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
+    padding:14px; border-radius:999px; border:1px solid var(--line-on-cream); background:#fff;
+    font-weight:700; font-size:0.9rem; color:var(--charcoal); cursor:pointer; font-family:inherit;
+    transition:background .2s ease, transform .2s ease;
+  }
+
+.google-btn:hover{ background:var(--cream-dim); transform:translateY(-1px); }
+
+.google-btn:disabled{ opacity:0.6; cursor:not-allowed; transform:none; }
+
+.auth-switch{ text-align:center; font-size:0.86rem; margin-top:20px; opacity:0.8; }
+
+.auth-switch button{ background:none; border:0; color:var(--pepper); font-weight:700; cursor:pointer; font-family:inherit; padding:0; font-size:inherit; }
+
+.auth-switch button:hover{ text-decoration:underline; }
+
+.auth-help-text{ font-size:0.88rem; opacity:0.75; margin-bottom:20px; }
+
+/* account view */
+
+.account-avatar{
+    width:64px; height:64px; border-radius:50%; margin:4px auto 22px;
+    background:var(--indigo); color:var(--gold-bright);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Anton', sans-serif; font-size:1.5rem;
+    position:relative; /* PHASE 4: anchors .account-avatar__upload — alone, changes nothing visually */
+  }
+
+.account-info{ margin-bottom:26px; }
+
+.account-row{
+    display:flex; justify-content:space-between; align-items:baseline; gap:14px; padding:13px 0;
+    border-bottom:1px solid var(--line-on-cream); font-size:0.9rem;
+  }
+
+.account-row .label{
+    flex:none; opacity:0.55; font-family:'DM Mono', monospace; font-size:0.7rem;
+    letter-spacing:0.06em; text-transform:uppercase;
+  }
+
+.account-row .value{ font-weight:600; text-align:right; overflow-wrap:anywhere; }
+
+.auth-signout-btn{ background:transparent; color:var(--pepper); border:1.5px solid var(--pepper); margin-top:4px; }
+
+.auth-signout-btn:hover{ background:rgba(222,65,58,0.08); }
+
+/* favorites (Phase 3) */
+
+.account-favorites{ margin-bottom:22px; }
+
+.account-favorites h4{
+    font-family:'DM Mono', monospace; font-size:0.72rem; letter-spacing:0.1em;
+    text-transform:uppercase; opacity:0.55; margin:0 0 12px;
+  }
+
+.account-favorites__empty{ font-size:0.86rem; opacity:0.6; line-height:1.5; }
+
+.account-favorites__list{ display:flex; flex-direction:column; }
+
+.account-fav-row{
+    display:flex; align-items:center; gap:12px; padding:10px 0;
+    border-bottom:1px solid var(--line-on-cream);
+  }
+
+.account-fav-row:last-child{ border-bottom:0; }
+
+.account-fav-row__thumb{
+    width:40px; height:40px; border-radius:10px; flex:none; cursor:pointer;
+    background:var(--cream-dim); display:flex; align-items:center; justify-content:center; font-size:1.2rem;
+  }
+
+.account-fav-row__info{ flex:1; min-width:0; cursor:pointer; }
+
+.account-fav-row__info .name{ font-weight:700; font-size:0.86rem; }
+
+.account-fav-row__info .price{ font-family:'DM Mono', monospace; font-size:0.76rem; color:var(--pepper); margin-top:2px; }
+
+.account-fav-row__remove{
+    flex:none; background:none; border:0; color:var(--pepper); opacity:0.6; cursor:pointer;
+    font-size:0.9rem; padding:6px; font-family:inherit; transition:opacity .2s ease;
+  }
+
+.account-fav-row__remove:hover{ opacity:1; }
+
+/* ============================================================
+   PHASE 4 — profile expansion: personal-info editing, avatar upload,
+   saved addresses, review history, order history, and change
+   password. All new, additive rules; nothing above this point in the
+   file was changed except .account-avatar gaining position:relative
+   (see that rule's own inline comment). Reuses .place-order-btn
+   (css/order-modal.css) for primary buttons, .auth-field/.auth-error/
+   .auth-success for form fields/feedback, and the .account-fav-row
+   pattern above as the model for .account-list-row below — same
+   visual language throughout, not a new one.
+   ================================================================ */
+
+.account-section-heading{
+    font-family:'DM Mono', monospace; font-size:0.72rem; letter-spacing:0.1em;
+    text-transform:uppercase; opacity:0.55; margin:0 0 12px;
+  }
+
+.account-addresses, .account-reviews, .account-password, .account-edit-profile{ margin-bottom:22px; }
+
+.account-info__edit-btn{
+    display:block; margin-top:8px; background:none; border:0; color:var(--pepper);
+    font-size:0.78rem; font-weight:700; cursor:pointer; font-family:inherit; padding:0;
+  }
+.account-info__edit-btn:hover{ text-decoration:underline; }
+
+.account-orders-link{
+    display:block; width:100%; text-align:left; background:none; border:0; padding:0 0 22px;
+    color:var(--pepper); font-weight:700; font-size:0.86rem; cursor:pointer; font-family:inherit;
+  }
+.account-orders-link:hover{ text-decoration:underline; }
+
+/* ---------- avatar upload ---------- */
+.account-avatar img{ width:100%; height:100%; border-radius:50%; object-fit:cover; }
+
+.account-avatar__upload{
+    position:absolute; right:-2px; bottom:2px; width:24px; height:24px; border-radius:50%;
+    background:var(--pepper); color:#fff; border:2px solid var(--cream); font-size:0.7rem;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; line-height:1;
+  }
+
+.account-avatar.uploading{ opacity:0.5; }
+
+/* ---------- shared row list (addresses, reviews, order history) ---------- */
+.account-list-row{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:11px 0;
+    border-bottom:1px solid var(--line-on-cream);
+  }
+.account-list-row:last-child{ border-bottom:0; }
+
+.account-list-row__body{ flex:1; min-width:0; }
+.account-list-row__title{ font-weight:700; font-size:0.86rem; }
+.account-list-row__sub{ font-size:0.78rem; opacity:0.65; margin-top:3px; line-height:1.45; }
+.account-list-row__actions{ flex:none; display:flex; gap:2px; }
+.account-list-row__actions button{
+    background:none; border:0; color:var(--indigo); opacity:0.6; cursor:pointer;
+    font-size:0.76rem; padding:4px 6px; font-family:inherit; transition:opacity .2s ease; white-space:nowrap;
+  }
+.account-list-row__actions button:hover{ opacity:1; }
+.account-list-row__actions button.danger{ color:var(--pepper); }
+
+.account-default-badge{
+    display:inline-block; font-family:'DM Mono', monospace; font-size:0.6rem; letter-spacing:0.05em;
+    text-transform:uppercase; color:var(--gold-bright); background:var(--indigo); border-radius:999px;
+    padding:2px 8px; margin-left:8px; vertical-align:middle;
+  }
+
+/* ---------- inline add/edit form (saved addresses) ---------- */
+.account-inline-form{ margin-top:14px; }
+
+.auth-field textarea{
+    width:100%; padding:13px 14px; border-radius:12px;
+    border:1px solid var(--line-on-cream); background:#fff; font-family:'Work Sans', sans-serif;
+    font-size:0.92rem; color:var(--charcoal); resize:vertical;
+  }
+.auth-field textarea:focus{ outline:2px solid var(--gold); border-color:transparent; }
+.auth-field.error textarea{ border-color:var(--pepper); }
+
+.account-inline-form__actions{ display:flex; align-items:center; gap:16px; margin-top:2px; }
+.account-inline-form__actions .place-order-btn{ width:auto; flex:1; padding:12px 18px; font-size:0.86rem; margin-top:0; }
+.account-inline-form__cancel{
+    background:none; border:0; color:var(--charcoal); opacity:0.55; font-size:0.82rem;
+    cursor:pointer; font-family:inherit; flex:none;
+  }
+.account-inline-form__cancel:hover{ opacity:0.85; }
+
+/* ---------- shared loading text (order history, review history) ---------- */
+.section-loading{ text-align:center; padding:20px 0; opacity:0.55; font-size:0.86rem; }
+
+/* ---------- order history rows (js/order-history-ui.js) ---------- */
+.account-order-row{ padding:14px 0; border-bottom:1px solid var(--line-on-cream); }
+.account-order-row:last-child{ border-bottom:0; }
+
+.account-order-row__top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+.account-order-row__number{ font-weight:700; font-size:0.9rem; }
+.account-order-row__date{ font-size:0.74rem; opacity:0.55; margin-top:2px; }
+
+.account-order-row__status{
+    flex:none; font-size:0.68rem; font-weight:700; letter-spacing:0.03em; text-transform:uppercase;
+    padding:5px 10px; border-radius:999px; background:var(--gold); color:var(--indigo-deep);
+  }
+.account-order-row__status.is-done{ background:var(--cream-dim); color:var(--charcoal); opacity:0.7; }
+.account-order-row__status.is-cancelled{ background:var(--pepper); color:#fff; }
+
+.account-order-row__meta{ font-size:0.8rem; opacity:0.7; margin-top:8px; }
+
+.account-order-row__items{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-on-cream); }
+.account-order-row__item{ display:flex; justify-content:space-between; font-size:0.82rem; padding:3px 0; opacity:0.85; }
+
+.account-order-row__actions{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.account-order-row__btn{
+    flex:none; background:var(--cream-dim); border:1px solid var(--line-on-cream); border-radius:999px;
+    padding:7px 14px; font-size:0.76rem; font-weight:700; cursor:pointer; font-family:inherit;
+    color:var(--charcoal); transition:background .2s ease;
+  }
+.account-order-row__btn:hover{ background:var(--gold); }
+
+/* PHASE 6 (Order Management) additions */
+
+.account-order-row__item-unit{ font-size:0.74rem; opacity:0.55; }
+
+.account-order-row__extra{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-on-cream); }
+.account-order-row__extra-row{
+    display:flex; justify-content:space-between; gap:12px; font-size:0.8rem; padding:3px 0; opacity:0.75;
+  }
+.account-order-row__extra-row span:first-child{ flex:none; opacity:0.7; }
+.account-order-row__extra-row span:last-child{ text-align:right; }
+
+.account-order-row__btn--cancel{ color:var(--pepper); border-color:rgba(222,65,58,0.35); }
+.account-order-row__btn--cancel:hover{ background:rgba(222,65,58,0.1); }
+.account-order-row__btn--cancel:disabled{ opacity:0.5; cursor:default; }
+
+.account-favorites__empty--error{ color:var(--pepper); }
+
+/* Skeleton rows while the live orders subscription's first snapshot
+   is still in flight — reuses css/product-grid.css's own
+   .skeleton-line/shimmer rather than a second loading treatment. */
+.account-order-row--skeleton{ display:flex; }
+.account-order-row--skeleton .account-order-row__top{ width:100%; align-items:center; }
+.account-order-row__skeleton-lines{ flex:1; }
+.account-order-row--skeleton .skeleton-line--title{ width:35%; }
+.account-order-row--skeleton .skeleton-line--desc{ width:22%; margin-top:8px; }
+.skeleton-line--pill{ width:64px; height:20px; border-radius:999px; flex:none; }
